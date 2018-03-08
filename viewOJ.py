@@ -1,7 +1,5 @@
-
 from flask import Flask, render_template, request
 from flask.ext.sqlalchemy import SQLAlchemy
-from threading import Timer, Thread
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -20,14 +18,14 @@ def login():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    from static.utils import searchUtil
+    from static.utils import sqlUtil
     jsonData = request.get_json()
     st = jsonData.get('st')
     ed = jsonData.get('ed')
-    util = searchUtil.sqlUtil()
+    util = sqlUtil.sqlUtil()
     dic = {}
-    dic['countDate'] = util.get_countDate(stDate=st,edDate=ed)
-    dic['dates'] = util.get_inc_by_date(stDate=st,edDate=ed)
+    dic['countDate'] = util.get_countDate(stDate=st, edDate=ed)
+    dic['dates'] = util.get_inc_by_date(stDate=st, edDate=ed)
     json_str = util.obj_to_json(dic)
     return json_str
 
