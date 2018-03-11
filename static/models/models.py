@@ -2,9 +2,10 @@ import datetime
 
 
 class user:
-    def __init__(self, userId, userName):
+    def __init__(self, userId, userName, yn=1):
         self.userId = userId
         self.userName = userName
+        self.yn = yn
 
 
 class oj:

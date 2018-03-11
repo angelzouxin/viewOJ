@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block head %}
+    <meta charset="utf-8">
+    <title>Welcome to login!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Le styles -->
+{% endblock %}
+
+{% block content %}
+    <table class="ui compact celled definition table">
+        <thead>
+        <tr>
+            <div class="row">
+                {% for head_name in ['', '学号', '姓名', '是否记录'] %}
+                    <th>{{ head_name }}</th>
+                {% endfor %}
+            </div>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td class="collapsing">
+                    <div class="ui fitted slider checkbox">
+                        <input type="checkbox"> <label></label>
+                    </div>
+                </td>
+                <td id="userId">{{ item.userId }}</td>
+                <td id="name">{{ item.userName }}</td>
+                <td id="check">{{ '是' if item.yn == 1 or '否' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot class="full-width">
+        <tr>
+            <th></th>
+            <th colspan="4">
+                <div class="ui right floated small primary labeled icon button"><i class="user icon"></i> 添加用户</div>
+                <div class="ui small button">Approve</div>
+                <div class="ui small disabled button">Approve All</div>
+            </th>
+        </tr>
+        </tfoot>
+    </table>
+{% endblock %}

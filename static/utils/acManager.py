@@ -42,7 +42,7 @@ class AcManager:
 
     def get_pre(self):
         #list of [userId,userName]
-        users = self.sqlUtil.get_user()
+        users = self.sqlUtil.get_user_valid()
         for user in users:
             userId, userName = user
             # list of [userInfoId, ojId, userOjId]
