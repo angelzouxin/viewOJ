@@ -6,42 +6,274 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- Le styles -->
+    <style type="text/css">
+        body {
+            background-color: #1b1c1d;
+        }
+
+        .hidden.menu {
+            display: none;
+        }
+
+        .masthead.segment {
+            min-height: 700px;
+            padding: 1em 0em;
+        }
+
+        .masthead .logo.item img {
+            margin-right: 1em;
+        }
+
+        .masthead .ui.menu .ui.button {
+            margin-left: 0.5em;
+        }
+
+        .masthead h1.ui.header {
+            margin-top: 3em;
+            margin-bottom: 0em;
+            font-size: 4em;
+            font-weight: normal;
+        }
+
+        .masthead h2 {
+            font-size: 1.7em;
+            font-weight: normal;
+        }
+
+        .ui.vertical.stripe {
+            padding: 8em 0em;
+        }
+
+        .ui.vertical.stripe h3 {
+            font-size: 2em;
+        }
+
+        .ui.vertical.stripe .button + h3,
+        .ui.vertical.stripe p + h3 {
+            margin-top: 3em;
+        }
+
+        .ui.vertical.stripe .floated.image {
+            clear: both;
+        }
+
+        .ui.vertical.stripe p {
+            font-size: 1.33em;
+        }
+
+        .ui.vertical.stripe .horizontal.divider {
+            margin: 3em 0em;
+        }
+
+        .quote.stripe.segment {
+            padding: 0em;
+        }
+
+        .quote.stripe.segment .grid .column {
+            padding-top: 5em;
+            padding-bottom: 5em;
+        }
+
+        .footer.segment {
+            padding: 5em 0em;
+        }
+
+        .secondary.pointing.menu .toc.item {
+            display: none;
+        }
+
+        @media only screen and (max-width: 700px) {
+            .ui.fixed.menu {
+                display: none !important;
+            }
+
+            .secondary.pointing.menu .item,
+            .secondary.pointing.menu .menu {
+                display: none;
+            }
+
+            .secondary.pointing.menu .toc.item {
+                display: block;
+            }
+
+            .masthead.segment {
+                min-height: 350px;
+            }
+
+            .masthead h1.ui.header {
+                font-size: 2em;
+                margin-top: 1.5em;
+            }
+
+            .masthead h2 {
+                margin-top: 0.5em;
+                font-size: 1.5em;
+            }
+        }
+
+
+    </style>
+    <script>
+        function changeYN(o) {
+            let yn = 1
+            if (!o.checked) {
+                yn = 0
+            }
+            let tr = o.parentNode.parentNode.parentNode.parentNode;
+            let userId = tr.cells[0].innerHTML;
+            $.ajax({
+                type: 'POST',
+                url: '/user/update',
+                timeout: 3000,
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    'userId': userId,
+                    'yn': yn,
+                }),
+                dataType: 'json',
+                success: function (data) {
+                    if (data.result) {
+                        alert('更新成功');
+                    } else {
+                        alert('更新失败');
+                        o.checked = !o.checked
+                    }
+                },
+                error: function (xhr, type) {
+                    alert('error:' + type);
+                }
+            });
+        }
+    </script>
 {% endblock %}
 
 {% block content %}
-    <table class="ui compact celled definition table">
-        <thead>
-        <tr>
-            <div class="row">
-                {% for head_name in ['', '学号', '姓名', '是否记录'] %}
-                    <th>{{ head_name }}</th>
-                {% endfor %}
-            </div>
-        </tr>
-        </thead>
-        <tbody>
-        {% for item in items %}
-            <tr>
-                <td class="collapsing">
-                    <div class="ui fitted slider checkbox">
-                        <input type="checkbox"> <label></label>
+    <div class="ui dimmer modals page transition hidden" _vimium-has-onclick-listener="">
+        <div class="ui small add user modal transition hidden" _vimium-has-onclick-listener=""
+             style="margin-top: -92.5px;">
+            <div class="header">添加用户</div>
+            <div class="content">
+                <form action="/user/add" method="post" class="ui form segment error" _vimium-has-onclick-listener="">
+                    <div class="required field">
+                        <label>UserId</label>
+                        <div class="ui icon input">
+                            <input type="text" name="userId" placeholder="UserId">
+                            <i class="user icon"></i>
+                        </div>
                     </div>
-                </td>
-                <td id="userId">{{ item.userId }}</td>
-                <td id="name">{{ item.userName }}</td>
-                <td id="check">{{ '是' if item.yn == 1 or '否' }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-        <tfoot class="full-width">
-        <tr>
-            <th></th>
-            <th colspan="4">
-                <div class="ui right floated small primary labeled icon button"><i class="user icon"></i> 添加用户</div>
-                <div class="ui small button">Approve</div>
-                <div class="ui small disabled button">Approve All</div>
-            </th>
-        </tr>
-        </tfoot>
-    </table>
+                    <div class="required field">
+                        <label>Username</label>
+                        <div class="ui icon input">
+                            <input type="text" name="userName" placeholder="Username">
+                            <i class="user icon"></i>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Permission</label>
+                        <div class="ui selection dropdown">
+                            <input type="hidden" name="permission">
+                            <div class="default text">Permission</div>
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <div class="item" data-value="student">student</div>
+                                <div class="item" data-value="admin">admin</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui user submit button" style="display: none">Submit</div>
+                </form>
+            </div>
+
+            <div class="actions">
+                <div class="ui clear form negative button">否</div>
+                <div class="ui positive right labeled icon check form button">Submit <i
+                        class="checkmark icon"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="pusher">
+        <div class="ui inverted vertical masthead center aligned segment">
+            <div class="ui container">
+                <div class="ui large secondary inverted pointing menu">
+                    <form id='home' action="{{ url_for('home') }}" method="GET">
+                    </form>
+                    <a href="javascript:{}" onclick="document.getElementById('home').submit();"
+                       class="item">Home</a>
+                    <a class="active item">Manager</a>
+                    <div class="right item">
+                        {% if current_user.is_anonymous %}
+                            <form id='login' action="{{ url_for('login') }}" method="POST">
+                                <a href="javascript:{}" onclick="document.getElementById('login').submit();"
+                                   class="ui inverted button">Log in</a>
+                            </form>
+                        {% else %}
+                            <a style="font-size: 20px">你好 {{ current_user.userName }}</a>
+                            <form id='logout' action="{{ url_for('logout') }}" method="GET">
+                                <a href="javascript:{}" onclick="document.getElementById('logout').submit();"
+                                   class="ui inverted button">Log Out</a>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="ui container">
+                <div class="container">
+                    <table class="ui selectable compact celled definition table" id="table">
+                        {% if user_info is defined %}
+                        {% else %}
+                            <thead>
+                            <tr>
+                                <div class="row">
+                                    {% for head_name in ['学号', '姓名', '是否记录', '权限'] %}
+                                        <th>{{ head_name }}</th>
+                                    {% endfor %}
+                                </div>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td id="userId">{{ item.userId }}</td>
+                                    <td id="name">{{ item.userName }}</td>
+                                    <td id="check">
+                                        <div class="collapsing">
+                                            <div class="ui fitted slider checkbox">
+                                                <input onclick="changeYN(this);" type="checkbox" {% if item.yn == 1 %}
+                                                       checked {% endif %}>
+                                                <label></label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td id="permission">
+                                        <div class="ui permission selection dropdown">
+                                            <input name="permission" type="hidden" value='{{ item.permission }}'>
+                                            <i class="dropdown icon"></i>
+                                            <div class="text">{{ item.permission }}</div>
+                                            <div class="menu">
+                                                <div class="item" data-value="admin">admin</div>
+                                                <div class="item" data-value="student">student</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        {% endif %}
+                        <tfoot class="full-width">
+                        <tr>
+                            <th></th>
+                            <th colspan="4">
+                                <div class="ui right floated small primary labeled icon add user button">
+                                    <i class="user icon"></i>
+                                    添加用户
+                                </div>
+                            </th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/manager.js') }}" type="text/javascript"></script>
 {% endblock %}

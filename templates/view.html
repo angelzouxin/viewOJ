@@ -114,10 +114,13 @@
 
             <div class="ui container">
                 <div class="ui large secondary inverted pointing menu">
-                    <a class="toc item">
-                        <i class="sidebar icon"></i>
-                    </a>
-                    <a class="active item">Home</a>
+                    <a id=home class="active item">Home</a>
+                    {% if current_user.permission == 'admin' %}
+                        <form id='manager' action="{{ url_for('manager') }}" method="GET">
+                        </form>
+                        <a href="javascript:{}" onclick="document.getElementById('manager').submit();"
+                           class="item">Manager</a>
+                    {% endif %}
                     <div class="right item">
                         {% if current_user.is_anonymous %}
                             <form id='login' action="{{ url_for('login') }}" method="POST">
@@ -149,7 +152,7 @@
                     </div>
 
                 </div>
-                <div id="chart" style="width: 600px;height:400px;"></div>
+                <div id="chart" class="container" style="width: 100%;height:400px;"></div>
             </div>
 
         </div>
@@ -234,6 +237,7 @@
             $.ajax({
                 type: 'POST',
                 url: '/search',
+                timeout: 3000,
                 contentType: 'application/json',
                 data: JSON.stringify({
                     'st': st,
@@ -277,7 +281,7 @@
                             option_grade.series[1].data.push(x['subTimes']);
                         });
 
-                        $("#chart").append("<div id = " + grade + " style=\"width: 1400px;height:800px;\"></div>");
+                        $("#chart").append("<div id = " + grade + " style=\"width: 100%;height:780px;margin:50px;\"></div>");
                         var myChart = echarts.init($("#" + grade).get(0));
                         myChart.setOption(option_grade);
                     });
@@ -285,6 +289,7 @@
 
                 },
                 error: function (xhr, type) {
+                    alert('error:' + type);
                 }
             });
         };

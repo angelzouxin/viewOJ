@@ -1,8 +1,5 @@
-# coding=utf-8
-
 import datetime
 import time
-import config
 
 import xlrd
 from xlwt import *
@@ -20,12 +17,11 @@ class AcManager:
         self.crawled_time = time.strftime('%Y-%m-%d %a %H:%M', time.localtime(time.time()))
         self.user_list = []
         self.col_id = []
-        self.sqlUtil = sqlUtil('/home/zouxin/viewOJ/zuccOJ')
+        self.sqlUtil = sqlUtil('~/Code/Graduation\ Project/viewOJ/zuccOJ')
 
     def get_IDlist(self, id_file):
         self.crawled_time = time.strftime('%Y-%m-%d %a %H:%M', time.localtime(time.time()))
-        self.data = xlrd.open_workbook(id_file)
-        table = self.data.sheet_by_index(0)
+        table = xlrd.open_workbook(id_file).sheet_by_index(0)
         rows, cols = table.nrows, table.ncols
         head = table.row_values(0)
         self.col_id = [head[idx] for idx in range(cols)]
@@ -40,8 +36,8 @@ class AcManager:
             print({id, name}, oj_id)
             self.user_list.append([id, name, oj_id])
 
-    def get_pre(self):
-        #list of [userId,userName]
+    def list_user(self):
+        # list of [userId,userName]
         users = self.sqlUtil.get_user_valid()
         for user in users:
             userId, userName = user
@@ -56,10 +52,8 @@ class AcManager:
                 oj_id[ojName] = userOjId
                 sub_Num[ojName] = self.sqlUtil.get_subTimes_by_id(userInfoId)
                 ac_archive[ojName] = set(self.sqlUtil.get_subInfo_by_id(userInfoId))
-
+            oj_id['default'] = oj_id.get('zucc') is None and oj_id.get('hdu') or oj_id.get('zucc')
             self.user_list.append([userId, userName, oj_id, ac_archive, sub_Num])
-
-
 
     # get pre info from excel
     def get_pre_info(self, info_file, sheet_name1='ac_count', sheet_name2='ac_submission'):
@@ -94,11 +88,10 @@ class AcManager:
         for user in self.user_list:
             crawler = Crawler(user[2])
             crawler.run()
-            user.append(crawler.acArchive.copy())
-            user.append(crawler.submitNum.copy())
+            user[3] = crawler.acArchive.copy()
+            user[4] = crawler.submitNum.copy()
 
-
-    def save_count(self, out_file):
+    def save_count_to_xls(self, out_file):
         from static.utils.xlsUtil import xlsUtil
         w = Workbook()
         ws1 = w.add_sheet('ac_count')
@@ -194,12 +187,12 @@ class AcManager:
     @staticmethod
     def run():
         pre = AcManager()
-        pre.get_pre()
+        pre.list_user()
         total = AcManager()
-        total.get_IDlist('/home/zouxin/viewOJ/static/xls/Id_list.xls')
+        total.list_user()
         total.get_count()
-        today_acManager = AcManager.get_today_mes(total, pre)
-        today_acManager.save_to_db()
+        today_manager = AcManager.get_today_mes(total, pre)
+        today_manager.save_to_db()
 
 # if __name__ == '__main__':
 #     # headName = 'Count_list_'
@@ -221,10 +214,10 @@ class AcManager:
 #     # total_acManager.get_IDlist('xls/id_list.xls')
 #     # total_acManager.get_count()
 #     # # total_acManager.get_counts()
-#     # total_acManager.save_count(totalName + '.xls')
+#     # total_acManager.save_count_to_xls(totalName + '.xls')
 #     # # get Incremental
 #     # today_acManager = AcManager.get_today_mes(total_acManager, pre_acManager)
-#     # today_acManager.save_count(fileName + '.xls')
+#     # today_acManager.save_count_to_xls(fileName + '.xls')
 #     pre = AcManager()
 #     pre.get_pre()
 #     total = AcManager()

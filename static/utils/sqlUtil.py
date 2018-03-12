@@ -24,7 +24,7 @@ class sqlUtil:
         cursor.execute('SELECT userInfoId, userId, ojId FROM user_info')
         values = cursor.fetchall()
         self.info = {(info[1], info[2]): info[0] for info in values}
-        self.user = {info[0]: info[1] for info in cursor.execute('SELECT userId, userName FROM user').fetchall()}
+        self.user = {info[0]: info[1] for info in cursor.execute('SELECT userId, userName FROM user WHERE yn = 1').fetchall()}
         self.stDate = cursor.execute('SELECT min(countDate) FROM daily_info').fetchall()[0][0]
         cursor.close()
 

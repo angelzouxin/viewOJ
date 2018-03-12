@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, Response, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import (LoginManager, UserMixin, login_user, logout_user,
+from functools import wraps
+from flask.ext.login import (LoginManager, login_user, logout_user,
                             current_user, login_required, fresh_login_required)
+from static.utils import toolsUtil
 import os
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
@@ -27,6 +28,15 @@ def query_user(user_id):
 def load_user(user_id):
     from static.utils import userUtil
     return userUtil.query(user_id)
+
+
+def admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if current_user.permission != 'admin':
+            return Response('Permission Denied', status=401)
+        return func(*args, **kwargs)
+    return decorated_view
 
 
 @app.route('/index')
@@ -68,6 +78,7 @@ def logout():
 
 @app.route('/manager', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def manager():
     from static.models.User import User
     return render_template('manager.html', title='后台管理', items=db.session.query(User).all())
@@ -89,11 +100,34 @@ def search():
 
 @app.route('/user/add', methods=['POST'])
 @login_required
-def add():
+@admin_required
+def add_user():
     from static.utils import userUtil
     user_name = request.form.get('userName')
     user_id = request.form.get('userId')
-    userUtil.add(user_id, user_name)
+    user_permission = 'admin' if request.form.get('permission') == 'admin' else 'student'
+    if userUtil.add(user_id, user_name, 1, user_permission):
+        return redirect(url_for('manager'))
+    else:
+        return Response('Permission Denied', status=401)
+
+
+@app.route('/user/update', methods=['POST'])
+@login_required
+@admin_required
+def update():
+    from static.utils import userUtil
+    jsonData = request.get_json()
+    user_id = jsonData.get('userId')
+    yn = jsonData.get('yn')
+    permission = jsonData.get('permission')
+    result = False
+    if yn:
+        result = userUtil.update_yn(user_id, yn)
+    elif permission:
+        result = userUtil.update_permission(user_id, permission)
+    dic = {"result": result}
+    return jsonify(dic)
 
 
 if __name__ == '__main__':

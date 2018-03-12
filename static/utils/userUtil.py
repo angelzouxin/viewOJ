@@ -2,11 +2,15 @@ from static.models.User import User
 from viewOJ import db
 
 
-def add(user_id, user_name):
+def add(user_id, user_name, yn=0, user_permission='student'):
+    print(user_id, user_name, yn, user_permission)
     if query(user_id):
+        print('user exits')
         return False
-    user = User(user_id, user_name)
+    user = User(user_id, user_name, yn=yn, permission=user_permission)
+    print(user)
     db.session.add(user)
+    db.session.commit()
     return True
 
 
@@ -18,6 +22,15 @@ def update_yn(user_id, yn):
     user = User.query.filter_by(userId=user_id).first()
     if user:
         user.yn = yn
+        db.session.commit()
+        return True
+    return False
+
+
+def update_permission(user_id, permission):
+    user = User.query.filter_by(userId=user_id).first()
+    if user:
+        user.permission = permission
         db.session.commit()
         return True
     return False
