@@ -6,6 +6,9 @@ from xlwt import *
 
 from static.utils.sqlUtil import sqlUtil
 
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 __author__ = 'zouxin'
 
 
@@ -17,7 +20,7 @@ class AcManager:
         self.crawled_time = time.strftime('%Y-%m-%d %a %H:%M', time.localtime(time.time()))
         self.user_list = []
         self.col_id = []
-        self.sqlUtil = sqlUtil('~/Code/Graduation\ Project/viewOJ/zuccOJ')
+        self.sqlUtil = sqlUtil(os.path.join(basedir, '../../zuccOJ'))
 
     def get_IDlist(self, id_file):
         self.crawled_time = time.strftime('%Y-%m-%d %a %H:%M', time.localtime(time.time()))

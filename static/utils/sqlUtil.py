@@ -34,10 +34,6 @@ class sqlUtil:
         for index, row in df.T.iteritems():
             userId = str(row['学号'])
             userName = str(row['姓名'])
-            if self.user.get(userId) is None:
-                cursor.execute(
-                    'INSERT INTO user(userId, userName, password, yn) VALUES (?,?,?,?)',
-                    (userId, userName, userId, 1))
             for ojName, ojId in self.ojInfo.items():
                 userOjId = row[ojName] if row[ojName] == row[ojName] else row['zucc']
                 userInfo = user_info(userId, ojId, userOjId)
@@ -126,7 +122,7 @@ class sqlUtil:
         cursor = self.conn.cursor()
         cursor.execute('SELECT sum(subTimes) FROM daily_info WHERE userInfoId = ?', (userInfoId,))
         value = cursor.fetchone()
-        return int(value[0])
+        return int(value[0] if value[0] is not None else 0)
 
     def get_subInfo_by_id(self, userInfoId):
         cursor = self.conn.cursor()
