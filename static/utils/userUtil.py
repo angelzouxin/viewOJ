@@ -3,12 +3,10 @@ from viewOJ import db
 
 
 def add(user_id, user_name, yn=0, user_permission='student'):
-    print(user_id, user_name, yn, user_permission)
     if query(user_id):
         print('user exits')
         return False
     user = User(user_id, user_name, yn=yn, permission=user_permission)
-    print(user)
     db.session.add(user)
     db.session.commit()
     return True

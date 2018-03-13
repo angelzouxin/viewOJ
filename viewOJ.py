@@ -122,7 +122,7 @@ def update():
     yn = jsonData.get('yn')
     permission = jsonData.get('permission')
     result = False
-    if yn:
+    if yn is not None:
         result = userUtil.update_yn(user_id, yn)
     elif permission:
         result = userUtil.update_permission(user_id, permission)

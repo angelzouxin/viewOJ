@@ -74,7 +74,9 @@ class sqlUtil:
         cursor.execute('''SELECT b.userId,sum(acTimes),sum(subTimes),countDate
                           FROM daily_info AS a,user_info AS b
                           WHERE a.userInfoId = b.userInfoId
-                          AND countDate >= ? AND countDate < ?
+                          AND countDate >= ? AND countDate < ? AND b.userId in (
+                            SELECT userId from user WHERE yn = 1
+                          )
                           GROUP BY userId,countDate''', (stDate, edDate))
         values = list(map(lambda info: [self.user.get(info[0])] + list(info), cursor.fetchall()))
         res = {}
@@ -94,7 +96,7 @@ class sqlUtil:
         cursor = self.conn.cursor()
         cursor.execute('''SELECT countDate
                           FROM daily_info 
-                          WHERE countDate >= ? AND  countDate < ?
+                          WHERE countDate >= ? AND countDate < ?
                           GROUP BY countDate
                           ORDER BY countDate ASC''', (stDate, edDate))
         values = [info[0] for info in cursor.fetchall()]
