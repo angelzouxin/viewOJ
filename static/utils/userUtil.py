@@ -41,10 +41,19 @@ def list_by_filter(user_id=None, user_name=None):
 
 
 def reset(user_id):
-    return update(user_id, user_id)
+    return update_password(user_id, user_id)
 
 
-def update(user_id, password):
+def update_user_name(user_id, user_name):
+    user = User.query.filter_by(userId=user_id).first()
+    if user:
+        user.userName = user_name
+        db.session.commit()
+        return True
+    return False
+
+
+def update_password(user_id, password):
     user = User.query.filter_by(userId=user_id).first()
     if user:
         user.password = password

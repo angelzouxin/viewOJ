@@ -1,5 +1,6 @@
 from viewOJ import db
 from flask_login import UserMixin
+from sqlalchemy.orm import relationship
 
 
 class User(UserMixin, db.Model):
@@ -19,7 +20,7 @@ class User(UserMixin, db.Model):
         self.permission = permission
 
     def __repr__(self):
-        return '<User %r>' % self.userName
+        return str({'UserId': self.userId, 'UserName': self.userName})
 
     def get_id(self):
         return str(self.userId)

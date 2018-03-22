@@ -2,12 +2,6 @@ $(document).ready(function () {
 
     var grades = {};
 
-    var Zoom = [{   // 这个dataZoom组件，也控制x轴。
-        type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
-        start: 0,      // 左边在 10% 的位置。
-        end: 100         // 右边在 60% 的位置。
-    }];
-
     option = {
         title: {
             text: '增量图',
@@ -16,6 +10,17 @@ $(document).ready(function () {
                 color: '#ffffff'
             },
         },
+        toolbox: {
+            show: true,
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
         tooltip: {},
         legend: {
             data: ['accept', 'submission'],
@@ -46,7 +51,14 @@ $(document).ready(function () {
         series: [{
             name: 'accept',
             type: 'bar',
-            data: []
+            data: [],
+            markLine: {
+                data: [
+                    {type: 'average', name: '平均值'},
+                    {type: 'max'},
+                    {type: 'min'}
+                ]
+            },
         }, {
             name: 'submission',
             type: 'bar',
@@ -54,8 +66,6 @@ $(document).ready(function () {
             barGap: '0%',
         }]
     };
-
-    option['dataZoom'] = Zoom;
 
     var options = [];
 

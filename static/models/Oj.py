@@ -11,5 +11,5 @@ class Oj(db.Model):
         self.ojName = oj_name
 
     def __repr__(self):
-        return '<ojId %r, ojName %r>' % self.ojId, self.ojName
+        return str({'ojId': self.ojId, 'ojName': self.ojName})
 

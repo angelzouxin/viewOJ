@@ -87,11 +87,11 @@ def manager():
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     from static.utils import sqlUtil
-    jsonData = request.get_json()
-    st = jsonData.get('st')
-    ed = jsonData.get('ed')
+    json_data = request.get_json()
+    st = json_data.get('st')
+    ed = json_data.get('ed')
     util = sqlUtil.sqlUtil(os.path.join(basedir, 'zuccOJ'))
-    dic = {}
+    dic = dict()
     dic['countDate'] = util.get_countDate(stDate=st, edDate=ed)
     dic['dates'] = util.get_inc_by_date(stDate=st, edDate=ed)
     json_str = util.obj_to_json(dic)
@@ -117,17 +117,32 @@ def add_user():
 @admin_required
 def update():
     from static.utils import userUtil
-    jsonData = request.get_json()
-    user_id = jsonData.get('userId')
-    yn = jsonData.get('yn')
-    permission = jsonData.get('permission')
+    params = request.get_json()
+    user_id = params.get('userId')
+    user_name = params.get('userName')
+    yn = params.get('yn')
+    permission = params.get('permission')
     result = False
     if yn is not None:
         result = userUtil.update_yn(user_id, yn)
     elif permission:
         result = userUtil.update_permission(user_id, permission)
+    elif user_name:
+        result = userUtil.update_user_name(user_id, user_name)
     dic = {"result": result}
     return jsonify(dic)
+
+
+@app.route('/userInfo/<user_id>', methods=['GET', 'POST'])
+@login_required
+def get_user_info(user_id):
+    from static.utils import userInfoUtil
+    rows = userInfoUtil.list_by_filter(user_id)
+    result = []
+    names = ['user_id', 'user_name', 'oj_id', 'oj_name', 'user_info_id', 'user_oj_id']
+    for row in rows:
+        result.append(dict(zip(names, row)))
+    return toolsUtil.obj_to_json({'result': result})
 
 
 if __name__ == '__main__':

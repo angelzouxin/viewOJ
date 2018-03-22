@@ -120,14 +120,14 @@
                 yn = 0
             }
             let tr = o.parentNode.parentNode.parentNode.parentNode;
-            let userId = tr.cells[0].innerHTML;
+            let user_id = tr.cells[0].innerHTML;
             $.ajax({
                 type: 'POST',
                 url: '/user/update',
                 timeout: 3000,
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    'userId': userId,
+                    'userId': user_id,
                     'yn': yn,
                 }),
                 dataType: 'json',
@@ -144,6 +144,60 @@
                 }
             });
         }
+
+        function changeDisappear(a, b) {
+            a.style.display = 'none';
+            b.style.display = 'inline';
+        }
+
+        function changeUserName(o) {
+            let user_id = o.parentNode.cells[0].innerHTML;
+            let user_name = o.childNodes[1];
+            let user_input = o.firstChild;
+            user_input.value = user_name.innerHTML;
+            user_input.focus();
+            changeDisappear(user_name, user_input);
+            user_input.onkeypress = function (e) {
+                if (e.keyCode == 13) {
+                    if (user_name.innerHTML == user_input.value) {
+                        changeDisappear(user_input, user_name);
+                        return true
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '/user/update',
+                        timeout: 2000,
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            'userId': user_id,
+                            'userName': user_input.value,
+                        }),
+                        dataType: 'json',
+                        success: function (data) {
+                            if (data.result) {
+                                user_name.innerHTML = user_input.value;
+                                alert('更新成功');
+                            } else {
+                                alert('更新失败');
+                            }
+                        },
+                        error: function (xhr, type) {
+                            alert('error:' + type);
+                        }
+                    });
+                    changeDisappear(user_input, user_name);
+                    return true
+                }
+                return true
+            }
+        }
+
+        function getUserInfo(o) {
+            let tr = o.parentNode;
+            let user_id = tr.cells[0].innerHTML;
+            window.location.href = 'userInfo/' + user_id
+        }
+
     </script>
 {% endblock %}
 
@@ -224,7 +278,7 @@
                             <thead>
                             <tr>
                                 <div class="row">
-                                    {% for head_name in ['学号', '姓名', '是否记录', '权限'] %}
+                                    {% for head_name in ['学号', '姓名', '是否记录', '权限', '账户下账号信息'] %}
                                         <th>{{ head_name }}</th>
                                     {% endfor %}
                                 </div>
@@ -234,7 +288,9 @@
                             {% for item in items %}
                                 <tr>
                                     <td id="userId">{{ item.userId }}</td>
-                                    <td id="name">{{ item.userName }}</td>
+                                    <td id="name" onclick="changeUserName(this);"><input
+                                            style="display: none;"><span>{{ item.userName }}</span><span><i
+                                            class="edit icon"></i></span></td>
                                     <td id="check">
                                         <div class="collapsing">
                                             <div class="ui fitted slider checkbox">
@@ -254,6 +310,9 @@
                                                 <div class="item" data-value="student">student</div>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td id="userInfo" onclick="getUserInfo(this)">
+                                        <a>详情</a>
                                     </td>
                                 </tr>
                             {% endfor %}
