@@ -2,9 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, flash, abo
 from flask.ext.sqlalchemy import SQLAlchemy
 from functools import wraps
 from flask.ext.login import (LoginManager, login_user, logout_user,
-                            current_user, login_required, fresh_login_required)
+                             current_user, login_required, fresh_login_required)
+from sqlalchemy import asc
 from static.utils import toolsUtil
 import os
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
@@ -36,6 +38,7 @@ def admin_required(func):
         if current_user.permission != 'admin':
             return Response('Permission Denied', status=401)
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -81,7 +84,8 @@ def logout():
 @admin_required
 def manager():
     from static.models.User import User
-    return render_template('manager.html', title='后台管理', items=db.session.query(User).all())
+    return render_template('manager.html', title='后台管理',
+                           items=db.session.query(User).order_by(asc(User.permission)).order_by(User.userId).all())
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -142,7 +146,8 @@ def get_user_info(user_id):
     names = ['user_id', 'user_name', 'oj_id', 'oj_name', 'user_info_id', 'user_oj_id']
     for row in rows:
         result.append(dict(zip(names, row)))
-    return toolsUtil.obj_to_json({'result': result})
+    return render_template('userinfo.html', title='个人信息',
+                           items={'items': result, 'user_id': rows[0].userId, 'user_name': rows[0].userName})
 
 
 if __name__ == '__main__':
