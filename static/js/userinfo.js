@@ -22,7 +22,7 @@ Vue.component('user-info-table', {
                 <td>{{ user_name }}</td>
                 <td>{{ item.oj_name }}</td>
                 <td>
-                    <input v-if="item.edit" @keyup.enter="update(index)" v-model="item.user_oj_id">
+                    <input v-if="item.edit" @keyup.enter="update(index)" v-model="item.change_user_oj_id">
                     <span v-if="!item.edit">{{ item.user_oj_id }}<span style="margin-left: 5px"><i
                             class="edit icon" @click="editing(index)"></i></span></span>
                 </td>
@@ -32,14 +32,43 @@ Vue.component('user-info-table', {
   `,
     methods: {
         editing(index) {
-            for(let [item_index, item] of this.slist.entries()) {
+            for (let [item_index, item] of this.slist.entries()) {
                 item.edit = item_index == index
             }
         },
 
         update(index) {
-            alert(this.slist[index].user_oj_id)
             this.slist[index].edit = false
+            let update_info = this.slist[index].change_user_oj_id
+            if (update_info == this.slist[index].user_oj_id) {
+                return
+            }
+            if (!update_info || update_info == '') {
+                alert('用户id不能为空')
+                this.slist[index].change_user_oj_id = this.slist[index].user_oj_id
+                return
+            }
+            $.ajax({
+                type: 'POST',
+                url: '/userInfo/update',
+                timeout: 3000,
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    origin: this.slist[index],
+                    user_oj_id: update_info,
+                }),
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status == 'error') {
+                        alert('用户id更新失败，' + data.message)
+                        return
+                    }
+                    location.reload();
+                },
+                error: function (xhr, type) {
+                    alert('error:' + type);
+                }
+            })
         },
     }
 

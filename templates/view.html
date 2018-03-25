@@ -4,7 +4,6 @@
 {% block content %}
     <div class="pusher">
         <div class="ui inverted vertical masthead center aligned segment">
-
             <div class="ui container">
                 <div class="ui large secondary inverted pointing menu">
                     <a id=home class="active item">Home</a>
@@ -36,9 +35,8 @@
                     </div>
                 </div>
             </div>
-
             <div class="ui container">
-                <div class="container">
+                <div class="ui container">
 
                     <h2>Please enter Date </h2>
                     <div class="ui three column grid">
@@ -61,11 +59,27 @@
                     </div>
                     <div class="ui divider"></div>
                 </div>
-                <div id="chart" class="container" style="width: 100%;height:400px;"></div>
+                {% raw %}
+                <div class="ui sticky" style="width: 670px !important; height: 43px !important; left: 264.5px;">
+                    <div id="chart-guide-menu" class="ui secondary inverted pointing grade menu">
+                        <a class="item" :href="'#' + grade"
+                           v-for="grade in grades">
+                            {{ grade }}
+                        </a>
+                    </div>
+                    <script>
+                        var chart_guide_menu = new Vue({
+                            el: "#chart-guide-menu",
+                            data: {
+                                grades: [],
+                            }
+                        })
+                    </script>
+                </div>
+                {% endraw %}
+                <div id="chart" class=" ui container" style="width: 100%;height:100%;"></div>
             </div>
-
         </div>
-
     </div>
 
     <script src="{{ url_for('static', filename='js/view.js') }}" type="text/javascript"></script>

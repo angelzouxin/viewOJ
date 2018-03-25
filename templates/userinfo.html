@@ -66,9 +66,9 @@
                 </div>
                 <div>
                     <user-info-table
-                        v-bind:slist="slist"
-                        v-bind:user_name="user_name"
-                        v-bind:user_id="user_id">
+                            v-bind:slist="slist"
+                            v-bind:user_name="user_name"
+                            v-bind:user_id="user_id">
                     </user-info-table>
                 </div>
                 {% endraw %}
@@ -77,6 +77,7 @@
                         {{ items|tojson|safe }};
                     for (item of user_oj_info.items) {
                         item.edit = false
+                        item.change_user_oj_id = item.user_oj_id
                     }
                     let user_oj_info_table = new Vue({
                         el: '#user_oj_info_table',
@@ -126,6 +127,7 @@
                                     this.setSlist(this.list);
                                 }
                             },
+
                         },
                         watch: {}
                     })

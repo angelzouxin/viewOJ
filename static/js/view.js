@@ -2,7 +2,7 @@ $(document).ready(function () {
 
     var grades = {};
 
-    option = {
+    var option = {
         title: {
             text: '增量图',
             textStyle: {
@@ -67,8 +67,6 @@ $(document).ready(function () {
         }]
     };
 
-    var options = [];
-
     var pre_st, pre_ed;
 
     $(".ui.search.data.button").click(function () {
@@ -96,6 +94,7 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (data) {
                 grades = {};
+                chart_guide_menu.grades = []
                 $.each(data['dates'], function (idx, info) {
 
                     var grade = info['userId'].substr(0, 4);
@@ -131,13 +130,15 @@ $(document).ready(function () {
                         option_grade.series[1].data.push(x['subTimes']);
                     });
 
-                    $("#chart").append("<div id = " + grade + " style=\"width: 100%;height:780px;margin:50px;\"></div>");
+                    $("#chart").append("<div id = " + grade + " style=\"width: 100%;height:780px;margin-top:50px;\"></div>");
                     $("#chart").append("<div class=\"ui divider\"></div>");
                     var myChart = echarts.init($("#" + grade).get(0));
                     myChart.setOption(option_grade);
+                    chart_guide_menu.grades.push(grade)
                 });
 
-
+                $('.ui.sticky')
+                    .sticky();
             },
             error: function (xhr, type) {
                 alert('error:' + type);

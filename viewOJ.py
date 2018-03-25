@@ -150,5 +150,24 @@ def get_user_info(user_id):
                            items={'items': result, 'user_id': rows[0].userId, 'user_name': rows[0].userName})
 
 
+@app.route('/userInfo/update', methods=['POST'])
+@login_required
+def update_user_info():
+    from static.utils import userInfoUtil
+    json_data = request.get_json()
+    origin = json_data.get('origin')
+    if origin['user_id'] != current_user.userId and current_user.permission != 'admin':
+        return toolsUtil.obj_to_json({'status': 'error', 'message': '不能更新他人账号'})
+    user_oj_id = json_data.get('user_oj_id')
+    if current_user.permission != 'admin':
+        origin['user_id'] = current_user.userId
+    query_origin = userInfoUtil.query(origin['user_id'], origin['oj_id'])
+    if query_origin is None:
+        userInfoUtil.add(origin['user_id'], origin['oj_id'], user_oj_id)
+    else:
+        userInfoUtil.update_user_oj_id(query_origin.userInfoId, user_oj_id)
+    return toolsUtil.obj_to_json({'status': 'ok'})
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=7001, debug=True)
