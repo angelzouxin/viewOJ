@@ -75,9 +75,10 @@
                 <script>
                     let user_oj_info =
                         {{ items|tojson|safe }};
-                    for (item of user_oj_info.items) {
+                    for (let [item_index, item] of user_oj_info.items.entries()) {
                         item.edit = false
                         item.change_user_oj_id = item.user_oj_id
+                        item.item_index = item_index
                     }
                     let user_oj_info_table = new Vue({
                         el: '#user_oj_info_table',

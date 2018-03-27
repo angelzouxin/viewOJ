@@ -5,92 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <script>
-        function changeYN(o) {
-            let yn = 1
-            if (!o.checked) {
-                yn = 0
-            }
-            let tr = o.parentNode.parentNode.parentNode.parentNode;
-            let user_id = tr.cells[0].innerHTML;
-            $.ajax({
-                type: 'POST',
-                url: '/user/update',
-                timeout: 3000,
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    'userId': user_id,
-                    'yn': yn,
-                }),
-                dataType: 'json',
-                success: function (data) {
-                    if (data.result) {
-                        alert('更新成功');
-                    } else {
-                        alert('更新失败');
-                        o.checked = !o.checked
-                    }
-                },
-                error: function (xhr, type) {
-                    alert('error:' + type);
-                }
-            });
+    <style type="text/css">
+        [v-cloak] {
+            display: none
         }
 
-        function changeDisappear(a, b) {
-            a.style.display = 'none';
-            b.style.display = 'inline';
+        div.ui.left.aligned.container {
+            margin-top: 25px;
+            margin-bottom: 25px;
         }
-
-        function changeUserName(o) {
-            let user_id = o.parentNode.cells[0].innerHTML;
-            let user_name = o.childNodes[1];
-            let user_input = o.firstChild;
-            user_input.value = user_name.innerText;
-            user_input.focus();
-            changeDisappear(user_name, user_input);
-            user_input.onkeypress = function (e) {
-                if (e.keyCode == 13) {
-                    if (user_name.innerHTML == user_input.value) {
-                        changeDisappear(user_input, user_name);
-                        return true
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: '/user/update',
-                        timeout: 2000,
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            'userId': user_id,
-                            'userName': user_input.value,
-                        }),
-                        dataType: 'json',
-                        success: function (data) {
-                            if (data.result) {
-                                user_name.innerHTML = user_input.value;
-                                alert('更新成功');
-                            } else {
-                                alert('更新失败');
-                            }
-                        },
-                        error: function (xhr, type) {
-                            alert('error:' + type);
-                        }
-                    });
-                    changeDisappear(user_input, user_name);
-                    return true
-                }
-                return true
-            }
-        }
-
-        function getUserInfo(o) {
-            let tr = o.parentNode;
-            let user_id = tr.cells[0].innerHTML;
-            window.location.href = 'userInfo/' + user_id
-        }
-
-    </script>
+    </style>
+    <script src="{{ url_for('static', filename='js/manager.js') }}" type="text/javascript"></script>
 {% endblock %}
 
 {% block content %}
@@ -169,68 +94,98 @@
                 </div>
             </div>
             <div class="ui container">
-                <div class="container">
-                    <table class="ui selectable compact celled definition table" id="table">
-                        {% if user_info is defined %}
-                        {% else %}
-                            <thead>
-                            <tr>
-                                <div class="row">
-                                    {% for head_name in ['学号', '姓名', '是否记录', '权限', '账户下账号信息'] %}
-                                        <th>{{ head_name }}</th>
-                                    {% endfor %}
-                                </div>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for item in items %}
-                                <tr>
-                                    <td id="userId">{{ item.userId }}</td>
-                                    <td id="name" onclick="changeUserName(this);"><input
-                                            style="display: none;"><span>{{ item.userName }}<span><i
-                                            class="edit icon" style="margin-left: 5px"></i></span></span></td>
-                                    <td id="check">
-                                        <div class="collapsing">
-                                            <div class="ui fitted slider checkbox">
-                                                <input onclick="changeYN(this);" type="checkbox" {% if item.yn == 1 %}
-                                                       checked {% endif %}>
-                                                <label></label>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td id="permission">
-                                        <div class="ui permission selection dropdown">
-                                            <input name="permission" type="hidden" value='{{ item.permission }}'>
-                                            <i class="dropdown icon"></i>
-                                            <div class="text">{{ item.permission }}</div>
-                                            <div class="menu">
-                                                <div class="item" data-value="admin">admin</div>
-                                                <div class="item" data-value="student">student</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <a id="userInfo" onclick="getUserInfo(this.parentNode)">详情</a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        {% endif %}
-                        <tfoot class="full-width">
-                        <tr>
-                            <th></th>
-                            <th colspan="4">
-                                <div class="ui right floated small primary labeled icon add user button">
-                                    <i class="user icon"></i>
-                                    添加用户
-                                </div>
-                            </th>
-                        </tr>
-                        </tfoot>
-                    </table>
+                <div class="container" id="user_list_table">
+                    {% raw %}
+                    <div class="ui left aligned container">
+                        <div class="ui search">
+                            <div class="ui icon input">
+                                <input class="prompt" type="text" @input="search" list="search_result"
+                                       placeholder="Search countries...">
+                                <i class="search icon"></i>
+                            </div>
+                            <datalist id="search_result">
+                                <option v-cloak v-for="item in searchlist" :value="item"></option>
+                            </datalist>
+                        </div>
+                    </div>
+                    <div>
+                        <user-manager-table
+                                :slist="slist"
+                                :page_size="page_size"
+                                :page_index="page_index"
+                                :head_names="head_names">
+                        </user-manager-table>
+                    </div>
+                    {% endraw %}
                 </div>
+                <script>
+                    var user_list = {{ items|tojson|safe }};
+                    for (let [index, user] of user_list.entries()) {
+                        user.edit = false;
+                        user.change_user_name = user.userName;
+                        user.item_index = index;
+                    }
+
+                    let user_list_table = new Vue({
+                        el: '#user_list_table',
+                        data: {
+                            isActive: false,
+                            selected: -1,
+                            selectedlist: {},
+                            slist: [],
+                            searchlist: [],
+                            list: user_list,
+                            head_names: ['学号', '姓名', '是否记录', '权限', '账户下账号信息'],
+                            page_size: 10,
+                            page_index: 1,
+                        },
+                        created() {
+                            console.log(Date.now());
+                            this.setSlist(this.list);
+                        },
+                        methods: {
+                            // 获取需要渲染到页面中的数据
+                            setSlist(arr) {
+                                this.slist = JSON.parse(JSON.stringify(arr));
+                            },
+                            // 搜索
+                            search(e) {
+                                let v = e.target.value,
+                                    self = this;
+                                self.searchlist = [];
+                                if (v) {
+                                    let ss = [];
+                                    // 过滤需要的数据
+                                    this.list.forEach(function (item, index) {
+                                        if (item['permission'].indexOf(v) > -1) {
+                                            if (self.searchlist.indexOf(item.permission) == -1) {
+                                                self.searchlist.push(item.permission);
+                                            }
+                                            ss.push(item);
+                                        } else if (item['userId'].indexOf(v) > -1) {
+                                            if (self.searchlist.indexOf(item.userId) == -1) {
+                                                self.searchlist.push(item.userId);
+                                            }
+                                            ss.push(item);
+                                        } else if (item['userName'].indexOf(v) > -1) {
+                                            if (self.searchlist.indexOf(item.userName) == -1) {
+                                                self.searchlist.push(item.userName);
+                                            }
+                                            ss.push(item);
+                                        }
+                                    });
+                                    this.setSlist(ss); // 将过滤后的数据给了slist
+                                } else {
+                                    // 没有搜索内容，则展示全部数据
+                                    this.setSlist(this.list);
+                                }
+                            },
+
+                        },
+                        watch: {}
+                    })
+                </script>
             </div>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='js/manager.js') }}" type="text/javascript"></script>
 {% endblock %}

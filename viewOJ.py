@@ -84,8 +84,10 @@ def logout():
 @admin_required
 def manager():
     from static.models.User import User
+    result = db.session.query(User).order_by(asc(User.permission)).order_by(User.userId).all()
+    rows = [row.to_dict() for row in result]
     return render_template('manager.html', title='后台管理',
-                           items=db.session.query(User).order_by(asc(User.permission)).order_by(User.userId).all())
+                           items=rows)
 
 
 @app.route('/search', methods=['GET', 'POST'])

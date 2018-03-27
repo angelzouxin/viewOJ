@@ -24,3 +24,6 @@ class User(UserMixin, db.Model):
 
     def get_id(self):
         return str(self.userId)
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}

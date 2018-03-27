@@ -34,18 +34,20 @@ Vue.component('user-info-table', {
         editing(index) {
             for (let [item_index, item] of this.slist.entries()) {
                 item.edit = item_index == index
+                item.change_user_oj_id = item.user_oj_id
             }
         },
 
         update(index) {
-            this.slist[index].edit = false
-            let update_info = this.slist[index].change_user_oj_id
-            if (update_info == this.slist[index].user_oj_id) {
+            let item = this.slist[index]
+            item.edit = false
+            let update_info = item.change_user_oj_id
+            if (update_info == item.user_oj_id) {
                 return
             }
             if (!update_info || update_info == '') {
                 alert('用户id不能为空')
-                this.slist[index].change_user_oj_id = this.slist[index].user_oj_id
+                item.change_user_oj_id = item.user_oj_id
                 return
             }
             $.ajax({
@@ -63,7 +65,8 @@ Vue.component('user-info-table', {
                         alert('用户id更新失败，' + data.message)
                         return
                     }
-                    location.reload();
+                    item.user_oj_id = update_info
+                    user_oj_info.items[item.item_index].user_oj_id = update_info
                 },
                 error: function (xhr, type) {
                     alert('error:' + type);
