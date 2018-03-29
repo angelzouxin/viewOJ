@@ -143,7 +143,7 @@ def update():
 @login_required
 def get_user_info(user_id):
     from static.utils import userInfoUtil
-    rows = userInfoUtil.list_by_filter()
+    rows = userInfoUtil.list_by_filter(user_id)
     result = []
     names = ['user_id', 'user_name', 'oj_id', 'oj_name', 'user_info_id', 'user_oj_id']
     for row in rows:
