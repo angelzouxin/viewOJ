@@ -93,7 +93,6 @@
                             user_name: user_oj_info.user_name,
                         },
                         created() {
-                            console.log(Date.now());
                             this.setSlist(this.list);
                         },
                         methods: {
@@ -118,6 +117,16 @@
                                         } else if (item['user_oj_id'] && item['user_oj_id'].indexOf(v) > -1) {
                                             if (self.searchlist.indexOf(item.user_oj_id) == -1) {
                                                 self.searchlist.push(item.user_oj_id);
+                                            }
+                                            ss.push(item);
+                                        } else if (item['user_name'].indexOf(v) > -1) {
+                                            if (self.searchlist.indexOf(item.user_name) == -1) {
+                                                self.searchlist.push(item.user_name);
+                                            }
+                                            ss.push(item);
+                                        } else if (item['user_id'].indexOf(v) > -1) {
+                                            if (self.searchlist.indexOf(item.user_id) == -1) {
+                                                self.searchlist.push(item.user_id);
                                             }
                                             ss.push(item);
                                         }

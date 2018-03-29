@@ -1,5 +1,5 @@
 Vue.component('user-manager-table', {
-        props: ['slist', 'page_index', 'page_size', 'head_names'],
+        props: ['slist', 'head_names'],
         template: `
         <table class="ui selectable compact celled definition table" id="table">
             <thead>
@@ -43,8 +43,8 @@ Vue.component('user-manager-table', {
                     <a :class="(page_index == 1 ? 'disabled' : '') + ' icon item'" @click="leftPage" :disabled="page_index == 1">
                         <i class="left chevron icon"></i>
                     </a>
-                    <a @click="page_index=item_index" :class="(page_index == item_index ? 'active' : '') + ' item'" v-for="item_index in Math.floor((slist.length+page_size-1)/page_size)">{{ item_index }}</a>
-                    <a :class="(page_index == Math.floor((slist.length+page_size-1)/page_size) ? 'disabled' : '') + ' icon item'" @click="rightPage" :disabled="page_index == Math.floor((slist.length+page_size-1)/page_size)">
+                    <a @click="if (item_index != '...') page_index=item_index" :class="(page_index == item_index ? 'active' : '') + ' item'" v-for="item_index in changePageList">{{ item_index | showPage }}</a>
+                    <a :class="(page_index == page_length ? 'disabled' : '') + ' icon item'" @click="rightPage" :disabled="page_index == page_length">
                         <i class="right chevron icon"></i>
                     </a>
                 </div>
@@ -176,6 +176,36 @@ Vue.component('user-manager-table', {
                 });
             }
         },
+        data: function () {
+            return {
+                page_index: 1,
+                page_size: 12,
+                page_length: Math.floor((this.slist.length + 12 - 1) / 12),
+            }
+        },
+        computed: {
+            changePageList: function () {
+                let val = this.page_index;
+                let list = [];
+                if (this.page_length < 10) {
+                    list = [...Array(this.page_length + 1).keys()].slice(1)
+                } else {
+                    if (val > 3) {
+                        list.push('...')
+                    }
+                    let min_page = Math.max(1, val - 2);
+                    let max_page = Math.min(this.page_length - 1, val + 2);
+                    for (let i = min_page; i <= max_page; i++) {
+                        list.push(i)
+                    }
+                    if (max_page < this.page_length - 1) {
+                        list.push('...')
+                    }
+                    list.push(this.page_length)
+                }
+                return list
+            }
+        }
     }
 );
 
@@ -229,7 +259,6 @@ Vue.component('selected-drop-down', {
     mounted() {
         $(this.$el).dropdown();
     },
-
 })
 
 $(document).ready(function () {

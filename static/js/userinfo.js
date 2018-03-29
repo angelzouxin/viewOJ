@@ -17,9 +17,9 @@ Vue.component('user-info-table', {
             </tr>
             </thead>
             <tbody>
-            <tr v-for="(item, index) in slist">
-                <td>{{ user_id }}</td>
-                <td>{{ user_name }}</td>
+            <tr v-for="(item, index) in slist.slice((page_index-1)*page_size,page_index*page_size)">
+                <td>{{ item.user_id }}</td>
+                <td>{{ item.user_name }}</td>
                 <td>{{ item.oj_name }}</td>
                 <td>
                     <input v-if="item.edit" @keyup.enter="update(index)" v-model="item.change_user_oj_id">
@@ -28,8 +28,37 @@ Vue.component('user-info-table', {
                 </td>
             </tr>
             </tbody>
+            <tfoot class="full-width">
+            <tr>
+                <th></th>
+                <th colspan="4">
+                    <div class="ui center floated pagination menu">
+                        <a :class="(page_index == 1 ? 'disabled' : '') + ' icon item'" @click="leftPage" :disabled="page_index == 1">
+                            <i class="left chevron icon"></i>
+                        </a>
+                        <a @click="if (item_index != '...') page_index=item_index" :class="(page_index == item_index ? 'active' : '') + ' item'" v-for="item_index in changePageList">{{ item_index | showPage }}</a>
+                        <a :class="(page_index == page_length ? 'disabled' : '') + ' icon item'" @click="rightPage" :disabled="page_index == page_length">
+                            <i class="right chevron icon"></i>
+                        </a>
+                    </div>
+                </th>
+            </tr>
+            </tfoot>
         </table>
   `,
+    data: function () {
+        return {
+            page_index: 1,
+            page_size: 12,
+            page_length: Math.floor((this.slist.length + 12 - 1) / 12),
+        }
+    },
+    watch: {
+        slist: function (val, oldVal) {
+            this.page_length = Math.floor((this.slist.length + this.page_size - 1) / this.page_size);
+            this.page_index = 1;
+        },
+    },
     methods: {
         editing(index) {
             for (let [item_index, item] of this.slist.entries()) {
@@ -73,6 +102,41 @@ Vue.component('user-info-table', {
                 }
             })
         },
+
+        leftPage() {
+            if (this.page_index > 1)
+                --this.page_index
+        },
+
+        rightPage() {
+            if (this.page_index < Math.floor((this.slist.length + this.page_size - 1) / this.page_size))
+                ++this.page_index
+        },
+
+    },
+
+    computed: {
+        changePageList: function () {
+            let val = this.page_index;
+            let list = [];
+            if (this.page_length < 10) {
+                list = [...Array(this.page_length + 1).keys()].slice(1)
+            } else {
+                if (val > 3) {
+                    list.push('...')
+                }
+                let min_page = Math.max(1, val - 2);
+                let max_page = Math.min(this.page_length - 1, val + 2);
+                for (let i = min_page; i <= max_page; i++) {
+                    list.push(i)
+                }
+                if (max_page < this.page_length - 1) {
+                    list.push('...')
+                }
+                list.push(this.page_length)
+            }
+            return list
+        }
     }
 
 })
