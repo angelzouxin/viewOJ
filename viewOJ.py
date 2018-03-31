@@ -171,5 +171,32 @@ def update_user_info():
     return toolsUtil.obj_to_json({'status': 'ok'})
 
 
+@app.route('/dailyInfo/search', methods=['POST'])
+@login_required
+def search_daily_info():
+    from static.utils import dailyInfoUtil
+    params = request.get_json()
+    user_id = params.get('userId')
+    oj_id = params.get('ojId')
+    st = params.get('st')
+    ed = params.get('ed')
+    group_by = params.get('groupBy')
+    daily_info = dailyInfoUtil.query(user_id, oj_id, st, ed, group_by)
+    return toolsUtil.obj_to_json({'status': 'ok', 'result': {'daily_info': daily_info}})
+
+
+@app.route('/subInfo/search', methods=['POST'])
+@login_required
+def search_sub_info():
+    from static.utils import subInfoUtil
+    params = request.get_json()
+    user_id = params.get('userId')
+    oj_id = params.get('ojId')
+    st = params.get('st')
+    ed = params.get('ed')
+    sub_info = subInfoUtil.query(user_id, oj_id, st, ed)
+    return toolsUtil.obj_to_json({'status': 'ok', 'result': {'sub_info': sub_info}})
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=7001, debug=True)

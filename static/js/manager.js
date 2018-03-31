@@ -205,7 +205,13 @@ Vue.component('user-manager-table', {
                 }
                 return list
             }
-        }
+        },
+        watch: {
+            slist: function (val, oldVal) {
+                this.page_length = Math.floor((this.slist.length + this.page_size - 1) / this.page_size);
+                this.page_index = 1;
+            },
+        },
     }
 );
 

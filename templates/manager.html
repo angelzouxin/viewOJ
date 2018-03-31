@@ -119,7 +119,7 @@
                     {% endraw %}
                 </div>
                 <script>
-                    var user_list = {{ items|tojson|safe }};
+                    let user_list = {{ items|tojson|safe }};
                     for (let [index, user] of user_list.entries()) {
                         user.edit = false;
                         user.change_user_name = user.userName;

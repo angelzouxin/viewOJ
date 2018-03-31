@@ -14,7 +14,30 @@ $(document).ready(function () {
             show: true,
             feature: {
                 mark: {show: true},
-                dataView: {show: true, readOnly: false},
+                dataView: {
+                    show: true, readOnly: true,
+                    optionToContent: function (opt) {
+                        let axisData = opt.xAxis[0].data; //坐标数据
+                        let series = opt.series; //折线图数据
+                        let tdHeads = '<td  style="padding: 0 10px">时间</td>'; //表头
+                        let tdBodys = ''; //数据
+                        series.forEach(function (item) {
+                            //组装表头
+                            tdHeads += `<th>${item.name}</th>`;
+                        });
+                        let table = `<table class="ui selectable fixed compact celled table"><tbody><tr>${tdHeads} </tr>`;
+                        for (let i = 0, l = axisData.length; i < l; i++) {
+                            for (let j = 0; j < series.length; j++) {
+                                //组装表数据
+                                tdBodys += `<td>${ series[j].data[i]}</td>`;
+                            }
+                            table += `<tr><td>${axisData[i]}</td>${tdBodys}</tr>`;
+                            tdBodys = '';
+                        }
+                        table += '</tbody></table>';
+                        return table;
+                    }
+                },
                 magicType: {show: true, type: ['stack', 'tiled']},
                 restore: {show: true},
                 saveAsImage: {show: true}
@@ -69,6 +92,8 @@ $(document).ready(function () {
 
     var pre_st, pre_ed;
 
+    var charts = []
+
     $(".ui.search.data.button").click(function () {
         var st = $('#st').val();
         var ed = $('#ed').val();
@@ -117,7 +142,7 @@ $(document).ready(function () {
                 });
 
                 $("#chart").empty();
-
+                charts = []
                 $.each(grades, function (grade, info) {
 
                     var option_grade = $.extend(true, {}, option);
@@ -134,6 +159,7 @@ $(document).ready(function () {
                     $("#chart").append("<div class=\"ui divider\"></div>");
                     var myChart = echarts.init($("#" + grade).get(0));
                     myChart.setOption(option_grade);
+                    charts.push(myChart)
                     chart_guide_menu.grades.push(grade)
                 });
 
@@ -153,5 +179,7 @@ $(document).ready(function () {
     $('#st').val(pre_st);
     $('#ed').val(pre_ed);
     searchByDate(pre_st, pre_ed);
-
+    $(window).resize(function () {
+        $lodash.map(charts, o => o.resize())
+    });
 });
