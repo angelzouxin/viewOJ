@@ -51,6 +51,8 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return get_user_info(current_user.userId)
     # from static.utils import loginUtil
     if request.method == 'POST':
         username = request.form.get('username')
