@@ -173,7 +173,7 @@ $(document).ready(function () {
                         subTimes = daily_info[oj_name][0].subTimes;
                         acTimes = daily_info[oj_name][0].acTimes;
                     }
-                    var acRatio = subTimes ? (acTimes/subTimes*100).toFixed(2) : 0;
+                    var acRatio = subTimes ? (acTimes / subTimes * 100).toFixed(2) : 0;
                     return acTimes + '/' + subTimes + '(' + acRatio + '%)'
                 },
                 textStyle: {
