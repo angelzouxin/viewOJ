@@ -2,3 +2,4 @@ venv
 .idea
 __pycache__
 zuccOJ
+wechat_token.ini
