@@ -57,6 +57,7 @@
                     <div class="twelve wide column" id="dailyAcRatioInfo" style="height: 600px;  width: 100%"></div>
                 </div>
             </div>
+    {% if current_user.is_anonymous or current_user.permission == 'admin' or current_user.userId == user_id %}
             <div class="ui container" id="user_oj_info_table">
                 {% raw %}
                 <div class="ui left aligned container">
@@ -151,5 +152,6 @@
                 watch: {}
             })
         </script>
+    {% endif %}
     </div>
 {% endblock %}

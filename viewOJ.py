@@ -151,7 +151,8 @@ def get_user_info(user_id):
     for row in rows:
         result.append(dict(zip(names, row)))
     return render_template('userinfo.html', title='个人信息',
-                           items={'items': result, 'user_id': rows[0].userId, 'user_name': rows[0].userName})
+                           items={'items': result, 'user_id': rows[0].userId, 'user_name': rows[0].userName},
+                           user_id=user_id)
 
 
 @app.route('/userInfo/update', methods=['POST'])
