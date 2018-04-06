@@ -6,11 +6,12 @@ import datetime
 
 class CrawlerInfo(db.Model):
     __tablename__ = 'crawler_info'
-
+    # lastFetchTime 与 status 用来进行爬虫策略的调度以及设置乐观锁
     userInfoId = db.Column(db.Integer, ForeignKey(UserInfo.userInfoId), primary_key=True, nullable=False)
     lastFetchTime = db.Column(db.DateTime, nullable=False)
-    retryTimes = db.Column(db.Integer, default=0, nullable=False)
+    used = db.Column(db.Integer, default=0, nullable=False)
     status = db.Column(db.Integer, default=0, nullable=False)
+    retryTimes = db.Column(db.Integer, default=0, nullable=False)
 
     CRAWLER_FAIL_STATUS = 0
     CRAWLER_SUCCESS_STATUS = 1
@@ -21,3 +22,4 @@ class CrawlerInfo(db.Model):
         self.userInfoId = user_info_id
         self.retryTimes = 0
         self.status = 0
+        self.used = 0
