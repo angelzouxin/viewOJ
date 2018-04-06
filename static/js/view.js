@@ -1,8 +1,8 @@
 $(document).ready(function () {
 
-    var grades = {};
+    let grades = {};
 
-    var option = {
+    let option = {
         title: {
             text: '增量图',
             textStyle: {
@@ -38,7 +38,7 @@ $(document).ready(function () {
                         return table;
                     }
                 },
-                magicType: {show: true, type: ['stack', 'tiled']},
+                magicType: {show: true, type: ['stack', 'line']},
                 restore: {show: true},
                 saveAsImage: {show: true}
             }
@@ -74,6 +74,7 @@ $(document).ready(function () {
         series: [{
             name: 'accept',
             type: 'bar',
+            smooth: true,
             data: [],
             markLine: {
                 data: [
@@ -85,18 +86,19 @@ $(document).ready(function () {
         }, {
             name: 'submission',
             type: 'bar',
+            smooth: true,
             data: [],
             barGap: '0%',
         }]
     };
 
-    var pre_st, pre_ed;
+    let pre_st, pre_ed;
 
-    var charts = []
+    let charts = []
 
     $(".ui.search.data.button").click(function () {
-        var st = $('#st').val();
-        var ed = $('#ed').val();
+        let st = $('#st').val();
+        let ed = $('#ed').val();
         if (st === "") st = null;
         if (ed === "") ed = null;
         if (st !== pre_st || ed !== pre_ed) {
@@ -106,7 +108,7 @@ $(document).ready(function () {
         }
     });
 
-    var searchByDate = function (st, ed) {
+    let searchByDate = function (st, ed) {
         $.ajax({
             type: 'POST',
             url: '/search',
@@ -119,14 +121,14 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (data) {
                 grades = {};
-                chart_guide_menu.grades = []
+                chart_guide_menu.grades = [];
                 $.each(data['dates'], function (idx, info) {
 
-                    var grade = info['userId'].substr(0, 4);
-                    var userId = info['userId'] + ',' + info['userName'];
+                    let grade = info['userId'].substr(0, 4);
+                    let userId = info['userId'] + ',' + info['userName'];
 
-                    var acTimes = 0;
-                    var subTimes = 0;
+                    let acTimes = 0;
+                    let subTimes = 0;
 
                     $.each(info['dailyInfo'], function (idx, daily) {
                         acTimes += Number(daily['acTimes']);
@@ -145,7 +147,7 @@ $(document).ready(function () {
                 charts = []
                 $.each(grades, function (grade, info) {
 
-                    var option_grade = $.extend(true, {}, option);
+                    let option_grade = $.extend(true, {}, option);
 
                     option_grade.title.text = option_grade.title.text + grade;
 
@@ -157,7 +159,7 @@ $(document).ready(function () {
 
                     $("#chart").append("<div id = " + grade + " style=\"width: 100%;height:780px;margin-top:50px;\"></div>");
                     $("#chart").append("<div class=\"ui divider\"></div>");
-                    var myChart = echarts.init($("#" + grade).get(0));
+                    let myChart = echarts.init($("#" + grade).get(0));
                     myChart.setOption(option_grade);
                     charts.push(myChart)
                     chart_guide_menu.grades.push(grade)

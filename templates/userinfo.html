@@ -57,14 +57,77 @@
                     <div class="twelve wide column" id="dailyAcRatioInfo" style="height: 600px;  width: 100%"></div>
                 </div>
             </div>
-    {% if current_user.is_anonymous or current_user.permission == 'admin' or current_user.userId == user_id %}
-            <div class="ui container" id="user_oj_info_table">
+            {% if current_user.is_anonymous or current_user.permission == 'admin' or current_user.userId == user_id %}
+                <div class="ui container" id="user_oj_info_table">
+                    {% raw %}
+                    <div class="ui left aligned container">
+                        <div class="ui search">
+                            <div class="ui icon input">
+                                <input class="prompt" type="text" @input="search" list="search_result"
+                                       placeholder="Search users...">
+                                <i class="search icon"></i>
+                            </div>
+                            <datalist id="search_result">
+                                <option v-cloak v-for="item in searchlist" :value="item"></option>
+                            </datalist>
+                        </div>
+                    </div>
+                    <div>
+                        <user-info-table
+                                v-bind:slist="slist"
+                                v-bind:user_name="user_name"
+                                v-bind:user_id="user_id">
+                        </user-info-table>
+                    </div>
+                    {% endraw %}
+                </div>
+                <script>
+                    let login_user_id =
+                        {{ current_user.userId if current_user.is_anonymous == False else 'anonymous' }}
+                        let
+                    is_crawel =
+                        {{ current_user.yn if current_user.is_anonymous == False else False }}
+                        let
+                    user_oj_info =
+                    {{ items|tojson|safe }};
+                    for (let [item_index, item] of user_oj_info.items.entries()) {
+                        item.edit = false
+                        item.change_user_oj_id = item.user_oj_id;
+                        item.item_index = item_index
+                    }
+                </script>
+            {% endif %}
+            <div class="ui container" style="margin: 30px">
+
+                <h2>Please enter Date </h2>
+                <div class="ui three column grid">
+                    <div class="five wide column">
+                    </div>
+                    <div class="six wide floated column">
+                        <div class="ui mini input">
+                            <input type="startDate" id="st" placeholder="yyyy-mm-dd" required
+                                   autofocus>
+                        </div>
+                        <b>to</b>
+                        <div class="ui mini input">
+                            <input type="endDate" id="ed" placeholder="yyyy-mm-dd" required>
+                        </div>
+                    </div>
+                    <div class="four wide left aligned column">
+                        <button class="ui left inverted basic tiny search data button">search</button>
+                    </div>
+
+                </div>
+                <div class="ui divider"></div>
+                <div id="weeklyInfoCount" class=" ui container" style="width: 100%;height:600px;"></div>
+            </div>
+            <div class="ui container" id="user_sub_info_table">
                 {% raw %}
                 <div class="ui left aligned container">
                     <div class="ui search">
                         <div class="ui icon input">
                             <input class="prompt" type="text" @input="search" list="search_result"
-                                   placeholder="Search users...">
+                                   placeholder="Search...">
                             <i class="search icon"></i>
                         </div>
                         <datalist id="search_result">
@@ -73,85 +136,14 @@
                     </div>
                 </div>
                 <div>
-                    <user-info-table
+                    <user-sub-info-table
                             v-bind:slist="slist"
-                            v-bind:user_name="user_name"
-                            v-bind:user_id="user_id">
-                    </user-info-table>
+                            >
+                    </user-sub-info-table>
                 </div>
                 {% endraw %}
             </div>
         </div>
-        <script>
-            let user_oj_info =
-                {{ items|tojson|safe }};
-            for (let [item_index, item] of user_oj_info.items.entries()) {
-                item.edit = false
-                item.change_user_oj_id = item.user_oj_id
-                item.item_index = item_index
-            }
-            let user_oj_info_table = new Vue({
-                el: '#user_oj_info_table',
-                data: {
-                    isActive: false,
-                    selected: -1,
-                    selectedlist: {},
-                    slist: [],
-                    searchlist: [],
-                    list: user_oj_info.items,
-                    user_id: user_oj_info.user_id,
-                    user_name: user_oj_info.user_name,
-                },
-                created() {
-                    this.setSlist(this.list);
-                },
-                methods: {
-                    // 获取需要渲染到页面中的数据
-                    setSlist(arr) {
-                        this.slist = JSON.parse(JSON.stringify(arr));
-                    },
-                    // 搜索
-                    search(e) {
-                        let v = e.target.value,
-                            self = this;
-                        self.searchlist = [];
-                        if (v) {
-                            let ss = [];
-                            // 过滤需要的数据
-                            this.list.forEach(function (item) {
-                                if (item['oj_name'].indexOf(v) > -1) {
-                                    if (self.searchlist.indexOf(item.oj_name) == -1) {
-                                        self.searchlist.push(item.oj_name);
-                                    }
-                                    ss.push(item);
-                                } else if (item['user_oj_id'] && item['user_oj_id'].indexOf(v) > -1) {
-                                    if (self.searchlist.indexOf(item.user_oj_id) == -1) {
-                                        self.searchlist.push(item.user_oj_id);
-                                    }
-                                    ss.push(item);
-                                } else if (item['user_name'].indexOf(v) > -1) {
-                                    if (self.searchlist.indexOf(item.user_name) == -1) {
-                                        self.searchlist.push(item.user_name);
-                                    }
-                                    ss.push(item);
-                                } else if (item['user_id'].indexOf(v) > -1) {
-                                    if (self.searchlist.indexOf(item.user_id) == -1) {
-                                        self.searchlist.push(item.user_id);
-                                    }
-                                    ss.push(item);
-                                }
-                            });
-                            this.setSlist(ss); // 将过滤后的数据给了slist
-                        } else {
-                            // 没有搜索内容，则展示全部数据
-                            this.setSlist(this.list);
-                        }
-                    },
 
-                },
-                watch: {}
-            })
-        </script>
-    {% endif %}
     </div>
 {% endblock %}

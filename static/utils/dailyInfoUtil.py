@@ -22,7 +22,7 @@ def query(user_id=None, oj_id=None, start_date=None, end_date=None, group_by=Fal
     if start_date is not None:
         db_query = db_query.filter(DailyInfo.countDate >= start_date)
     if end_date is not None:
-        db_query = db_query.filter(DailyInfo.countDate <= end_date)
+        db_query = db_query.filter(DailyInfo.countDate < end_date)
     if user_id is not None:
         db_query = db_query.filter(User.userId == user_id)
     if oj_id is not None:
