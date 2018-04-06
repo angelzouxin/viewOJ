@@ -105,7 +105,7 @@ class AcManager:
                 if len(value) > 0:
                     if user_info_id is not None:
                         crawler_info = crawlerInfoUtil.query(user_info_id)
-                        retry_time = crawler_info.retryTimes
+                        retry_time = crawler_info.retryTimes if crawler_info is not None else 0
                         # only alarm when retry_times >= max_retry_times, then clear out retry times
                         if retry_time == CrawlerInfo.MAX_RETRY_TIMES:
                             retry_time = 0
