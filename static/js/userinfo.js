@@ -573,6 +573,7 @@ $(document).ready(function () {
             {
                 name: 'ac数',
                 type: 'line',
+                barMaxWidth: 40,
                 data: [],
                 smooth: true,
                 markPoint: {
@@ -590,6 +591,7 @@ $(document).ready(function () {
             {
                 name: '提交数',
                 type: 'line',
+                barMaxWidth: 40,
                 data: [],
                 smooth: true,
                 markPoint: {
@@ -855,8 +857,8 @@ $(document).ready(function () {
                 this.slist = JSON.parse(JSON.stringify(arr));
             },
             setList(arr) {
-              this.list = arr;
-              this.setSlist(this.list)
+                this.list = arr;
+                this.setSlist(this.list)
             },
             // 搜索
             search(e) {

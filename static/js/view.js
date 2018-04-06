@@ -74,6 +74,7 @@ $(document).ready(function () {
         series: [{
             name: 'accept',
             type: 'bar',
+            barMaxWidth: 40,
             smooth: true,
             data: [],
             markLine: {
@@ -86,6 +87,7 @@ $(document).ready(function () {
         }, {
             name: 'submission',
             type: 'bar',
+            barMaxWidth: 40,
             smooth: true,
             data: [],
             barGap: '0%',
