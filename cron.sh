@@ -1,3 +1,3 @@
 cd `dirname $0`
 source venv/bin/activate
-(python3 cron_job.py || echo fail >> Logs/crawel.log) && date >> Logs/crawel.log
+(python3 cron_job.py || echo fail >> Logs/crawler.log) && date >> Logs/crawler.log

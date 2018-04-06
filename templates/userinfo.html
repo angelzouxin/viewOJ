@@ -85,7 +85,7 @@
                     let login_user_id =
                         {{ current_user.userId if current_user.is_anonymous == False else 'anonymous' }}
                         let
-                    is_crawel =
+                    is_crawler =
                         {{ current_user.yn if current_user.is_anonymous == False else False }}
                         let
                     user_oj_info =

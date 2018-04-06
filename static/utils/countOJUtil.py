@@ -465,7 +465,7 @@ class Crawler:
             'Accept-Language': 'en-US,en;q=0.5',
             'Accept-Encoding': 'deflate',
         }
-        VJCrawelheaders = {
+        VJCrawlerheaders = {
             'Host': 'vjudge.net',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -500,7 +500,7 @@ class Crawler:
             req = urllib.request.Request(
                 url='https://vjudge.net/user/submissions?username=%s&pageSize=%s&status=%s&maxId=%s' % (
                     name, pageSize, status, maxId),
-                headers=VJCrawelheaders
+                headers=VJCrawlerheaders
             )
             try:
                 # buf = StringIO.StringIO( opener.open(req).read().content)
@@ -557,7 +557,7 @@ class Crawler:
             'Accept-Encoding': 'deflate',
             # 'Cookie':'ga=GA1.3.1416134436.1469179876',
         }
-        VJCrawelheaders = {
+        VJCrawlerheaders = {
             'Host': 'vjudge.net',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',

@@ -5,10 +5,16 @@ import xlrd
 from xlwt import *
 
 from static.utils.sqlUtil import sqlUtil
+from static.models.WeChatAlarms import WeChatAlarms
+from static.models.CrawlerInfo import CrawlerInfo
+from static.utils import crawlerInfoUtil
 
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
-
+alarm = WeChatAlarms()
+DELIMITER = ','
+DATETIME_FORMATE = '{0:%Y-%m-%d %H:%M:%S}'
+ALARM_TEMPLATE = '爬取用户信息失败\n学号：{user_id}\n姓名：{user_name}\noj: {oj_name}\n日期: {date}'
 __author__ = 'zouxin'
 
 
@@ -18,6 +24,7 @@ class AcManager:
 
     def __init__(self):
         self.crawled_time = time.strftime('%Y-%m-%d %a %H:%M', time.localtime(time.time()))
+        # [[userId, userName, {ojName: userOjId}, subTimes]]
         self.user_list = []
         self.col_id = []
         self.sqlUtil = sqlUtil(os.path.join(basedir, '../../zuccOJ'))
@@ -91,6 +98,28 @@ class AcManager:
         for user in self.user_list:
             crawler = Crawler(user[2])
             crawler.run()
+            count = 0
+            error_oj = []
+            for ojName, value in crawler.wrongOJ.items():
+                user_info_id = self.sqlUtil.info.get((user[0], self.sqlUtil.ojInfo.get(ojName)))
+                if len(value) > 0:
+                    if user_info_id is not None:
+                        crawler_info = crawlerInfoUtil.query(user_info_id)
+                        retry_time = crawler_info.retryTimes
+                        # only alarm when retry_times >= max_retry_times, then clear out retry times
+                        if retry_time == CrawlerInfo.MAX_RETRY_TIMES:
+                            retry_time = 0
+                            count += 1
+                            error_oj.append(ojName)
+                        else:
+                            retry_time += 1
+                        crawlerInfoUtil.upsert(user_info_id, CrawlerInfo.CRAWLER_FAIL_STATUS, retry_time=retry_time)
+                else:
+                    if user_info_id is not None:
+                        crawlerInfoUtil.upsert(user_info_id, CrawlerInfo.CRAWLER_SUCCESS_STATUS)
+            if count > 0:
+                err_msg = AcManager.generate_alarm_msg(user[0], user[1], error_oj)
+                alarm.send_msg(err_msg)
             user[3] = crawler.acArchive.copy()
             user[4] = crawler.submitNum.copy()
 
@@ -148,15 +177,15 @@ class AcManager:
             acTimes = {}
             userId = user[0]
             ac_Num, ac_archive = user[:-3:-1]
-            for ojId, acPros in ac_archive.items():
-                userInfoId = self.sqlUtil.info.get((userId, self.sqlUtil.ojInfo.get(ojId)))
+            for ojName, acPros in ac_archive.items():
+                userInfoId = self.sqlUtil.info.get((userId, self.sqlUtil.ojInfo.get(ojName)))
                 if userInfoId is None: continue
                 acTimes[userInfoId] = len(acPros)
                 for pro in acPros:
                     pros.append((userInfoId, pro, date))
 
-            for ojId, subTimes in ac_Num.items():
-                userInfoId = self.sqlUtil.info.get((userId, self.sqlUtil.ojInfo.get(ojId)))
+            for ojName, subTimes in ac_Num.items():
+                userInfoId = self.sqlUtil.info.get((userId, self.sqlUtil.ojInfo.get(ojName)))
                 if userInfoId is None: continue
                 if subTimes < 0:
                     subTimes = acTimes[userInfoId]
@@ -186,6 +215,12 @@ class AcManager:
         # for user in res.user_list:
         #     print(user[:3], user[-1])
         return res
+
+    @staticmethod
+    def generate_alarm_msg(user_id, user_name, oj_names):
+        oj_name = DELIMITER.join(oj_names)
+        date = DATETIME_FORMATE.format(datetime.datetime.now())
+        return ALARM_TEMPLATE.format_map(vars())
 
     @staticmethod
     def run():

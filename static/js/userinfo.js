@@ -306,7 +306,7 @@ $(document).ready(function () {
         },
         title: {
             text: 'Oj Accept Ratio',
-            subtext: 'bower by zucc crawel',
+            subtext: 'bower by zucc crawler',
             x: 'center',
             textStyle: {
                 color: '#fff'
@@ -476,7 +476,7 @@ $(document).ready(function () {
         backgroundColor: '#1b1c1d',
         title: {
             text: '题数汇总',
-            subtext: 'bower by zucc crawel',
+            subtext: 'bower by zucc crawler',
             x: 'center',
         },
         tooltip: {
@@ -513,7 +513,7 @@ $(document).ready(function () {
         backgroundColor: '#1b1c1d',
         title: {
             text: '七日刷题曲线',
-            subtext: 'power by zucc crawel'
+            subtext: 'power by zucc crawler'
         },
         tooltip: {
             trigger: 'axis'
@@ -731,7 +731,7 @@ $(document).ready(function () {
                 weeklyInfoCountOption.series[1].data = sub_info_array;
                 weeklyInfoCountOption.series[0].data = ac_info_array;
                 weeklyInfoCountChats.setOption(weeklyInfoCountOption);
-                if (is_show == false && is_crawel
+                if (is_show == false && is_crawler
                     && login_user_id == user_id
                     && $lodash.sum(sub_info_array) == 0
                     && moment().isAfter(moment(ed, DATE_FORMAT))) {
