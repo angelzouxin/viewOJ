@@ -142,7 +142,6 @@ def update():
 
 
 @app.route('/userInfo/<user_id>', methods=['GET', 'POST'])
-@login_required
 def get_user_info(user_id):
     from static.utils import userInfoUtil
     rows = userInfoUtil.list_by_filter(user_id)
@@ -175,7 +174,6 @@ def update_user_info():
 
 
 @app.route('/dailyInfo/search', methods=['POST'])
-@login_required
 def search_daily_info():
     from static.utils import dailyInfoUtil
     params = request.get_json()
@@ -189,7 +187,6 @@ def search_daily_info():
 
 
 @app.route('/subInfo/search', methods=['POST'])
-@login_required
 def search_sub_info():
     from static.utils import subInfoUtil
     params = request.get_json()

@@ -19,7 +19,7 @@ $(document).ready(function () {
                     optionToContent: function (opt) {
                         let axisData = opt.xAxis[0].data; //坐标数据
                         let series = opt.series; //折线图数据
-                        let tdHeads = '<td  style="padding: 0 10px">时间</td>'; //表头
+                        let tdHeads = '<td  style="padding: 0 10px">用户</td>'; //表头
                         let tdBodys = ''; //数据
                         series.forEach(function (item) {
                             //组装表头
@@ -38,7 +38,7 @@ $(document).ready(function () {
                         return table;
                     }
                 },
-                magicType: {show: true, type: ['stack', 'line']},
+                magicType: {show: true, type: ['stack']},
                 restore: {show: true},
                 saveAsImage: {show: true}
             }
@@ -58,6 +58,7 @@ $(document).ready(function () {
             containLabel: true
         },
         xAxis: {
+            triggerEvent: true,
             data: [], axisLabel: {
                 interval: 0, rotate: '-20', textStyle: {
                     color: '#fff',
@@ -75,7 +76,6 @@ $(document).ready(function () {
             name: 'accept',
             type: 'bar',
             barMaxWidth: 40,
-            smooth: true,
             data: [],
             markLine: {
                 data: [
@@ -88,7 +88,6 @@ $(document).ready(function () {
             name: 'submission',
             type: 'bar',
             barMaxWidth: 40,
-            smooth: true,
             data: [],
             barGap: '0%',
         }]
@@ -96,7 +95,14 @@ $(document).ready(function () {
 
     let pre_st, pre_ed;
 
-    let charts = []
+    let charts = [];
+
+    let echartClick = function(params) {
+        if (params.componentType == 'xAxis') {
+            let user_id = params.value.split(',')[0];
+            window.location.href = 'userInfo/' + user_id;
+        }
+    };
 
     $(".ui.search.data.button").click(function () {
         let st = $('#st').val();
@@ -163,6 +169,7 @@ $(document).ready(function () {
                     $("#chart").append("<div class=\"ui divider\"></div>");
                     let myChart = echarts.init($("#" + grade).get(0));
                     myChart.setOption(option_grade);
+                    myChart.on('click', echartClick)
                     charts.push(myChart)
                     chart_guide_menu.grades.push(grade)
                 });

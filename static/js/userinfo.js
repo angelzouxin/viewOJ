@@ -777,7 +777,9 @@ $(document).ready(function () {
         dailyAcRatioCharts.resize();
         weeklyInfoCountChats.resize();
     });
-    let user_oj_info_table = new Vue({
+    let user_oj_info_table
+    if (login_user_id != 'anonymous')
+        user_oj_info_table = new Vue({
         el: '#user_oj_info_table',
         data: {
             isActive: false,
