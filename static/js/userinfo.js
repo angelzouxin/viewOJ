@@ -879,6 +879,11 @@ $(document).ready(function () {
                                 self.searchlist.push(item.acDate);
                             }
                             ss.push(item);
+                        } else if (item['proId'] && item['proId'].indexOf(v) > -1) {
+                            if (self.searchlist.indexOf(item.acDate) == -1) {
+                                self.searchlist.push(item.acDate);
+                            }
+                            ss.push(item);
                         }
                     });
                     this.setSlist(ss); // 将过滤后的数据给了slist
