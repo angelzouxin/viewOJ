@@ -127,8 +127,12 @@
     {% block head %}
     {% endblock %}
 </head>
-<body>
+<body class="pushable">
 <script>
+    $(document).ready(function () {
+        $('.ui.sidebar')
+            .sidebar('attach events', '.toc.item');
+    });
     $lodash = _.noConflict();
     Object.defineProperty(Vue.prototype, '$lodash', {value: $lodash});
 </script>

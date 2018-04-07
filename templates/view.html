@@ -2,10 +2,28 @@
 {% block head %}
 {% endblock %}
 {% block content %}
+    <div class="ui vertical inverted sidebar menu left" style="">
+        <a id=home class="active item">Home</a>
+        {% if current_user.permission == 'admin' %}
+            <form id='manager' action="{{ url_for('manager') }}" method="GET">
+            </form>
+            <a href="javascript:{}" onclick="document.getElementById('manager').submit();"
+               class="item">Manager</a>
+        {% endif %}
+        {% if current_user.userId %}
+            <form id='userInfo' action="{{ 'userInfo/' + current_user.userId }}" method="GET">
+            </form>
+            <a href="javascript:{}" onclick="document.getElementById('userInfo').submit();"
+               class="item">UserInfo</a>
+        {% endif %}
+    </div>
     <div class="pusher">
         <div class="ui inverted vertical masthead center aligned segment">
             <div class="ui container">
                 <div class="ui large secondary inverted pointing menu">
+                    <a class="toc item">
+                        <i class="sidebar icon"></i>
+                    </a>
                     <a id=home class="active item">Home</a>
                     {% if current_user.permission == 'admin' %}
                         <form id='manager' action="{{ url_for('manager') }}" method="GET">

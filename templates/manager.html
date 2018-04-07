@@ -19,6 +19,19 @@
 {% endblock %}
 
 {% block content %}
+    <div class="ui vertical inverted sidebar menu left" style="">
+        <form id='home' action="{{ url_for('home') }}" method="GET">
+        </form>
+        <a href="javascript:{}" onclick="document.getElementById('home').submit();"
+           class="item">Home</a>
+        <a class="active item">Manager</a>
+        {% if current_user.userId %}
+            <form id='userInfo' action="{{ 'userInfo/' + current_user.userId }}" method="GET">
+            </form>
+            <a href="javascript:{}" onclick="document.getElementById('userInfo').submit();"
+               class="item">UserInfo</a>
+        {% endif %}
+    </div>
     <div class="ui dimmer modals page transition hidden" _vimium-has-onclick-listener="">
         <div class="ui small add user modal transition hidden" _vimium-has-onclick-listener=""
              style="margin-top: -92.5px;">
@@ -66,6 +79,9 @@
         <div class="ui inverted vertical masthead center aligned segment">
             <div class="ui container">
                 <div class="ui large secondary inverted pointing menu">
+                    <a class="toc item">
+                        <i class="sidebar icon"></i>
+                    </a>
                     <form id='home' action="{{ url_for('home') }}" method="GET">
                     </form>
                     <a href="javascript:{}" onclick="document.getElementById('home').submit();"

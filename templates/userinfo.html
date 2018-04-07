@@ -19,11 +19,27 @@
     </style>
 {% endblock %}
 {% block content %}
+    <div class="ui vertical inverted sidebar menu left" style="">
+        <form id='home' action="{{ url_for('home') }}" method="GET">
+        </form>
+        <a href="javascript:{}" onclick="document.getElementById('home').submit();"
+           class="item">Home</a>
+        {% if current_user.permission == 'admin' %}
+            <form id='manager' action="{{ url_for('manager') }}" method="GET">
+            </form>
+            <a href="javascript:{}" onclick="document.getElementById('manager').submit();"
+               class="item">Manager</a>
+        {% endif %}
+        <a class="active item">UserInfo</a>
+    </div>
     <div class="pusher">
         <div class="ui inverted vertical masthead center aligned segment">
 
             <div class="ui container">
                 <div class="ui large secondary inverted pointing menu">
+                    <a class="toc item">
+                        <i class="sidebar icon"></i>
+                    </a>
                     <form id='home' action="{{ url_for('home') }}" method="GET">
                     </form>
                     <a href="javascript:{}" onclick="document.getElementById('home').submit();"
@@ -82,19 +98,19 @@
                     {% endraw %}
                 </div>
             {% endif %}
-                <script>
-                    let login_user_id =
-                        '{{ current_user.userId if current_user.is_anonymous == False else 'anonymous' }}';
-                    let is_crawler =
-                        '{{ (current_user.yn if current_user.is_anonymous == False else False) }}' == 'True';
-                    let user_oj_info =
-                        {{ items|tojson|safe }};
-                    for (let [item_index, item] of user_oj_info.items.entries()) {
-                        item.edit = false
-                        item.change_user_oj_id = item.user_oj_id;
-                        item.item_index = item_index
-                    }
-                </script>
+            <script>
+                let login_user_id =
+                    '{{ current_user.userId if current_user.is_anonymous == False else 'anonymous' }}';
+                let is_crawler =
+                    '{{ (current_user.yn if current_user.is_anonymous == False else False) }}' == 'True';
+                let user_oj_info =
+                    {{ items|tojson|safe }};
+                for (let [item_index, item] of user_oj_info.items.entries()) {
+                    item.edit = false
+                    item.change_user_oj_id = item.user_oj_id;
+                    item.item_index = item_index
+                }
+            </script>
 
             <div class="ui container" style="margin: 30px">
 
@@ -137,7 +153,7 @@
                 <div>
                     <user-sub-info-table
                             v-bind:slist="slist"
-                            >
+                    >
                     </user-sub-info-table>
                 </div>
                 {% endraw %}
