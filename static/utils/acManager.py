@@ -8,6 +8,7 @@ from static.utils.sqlUtil import sqlUtil
 from static.models.WeChatAlarms import WeChatAlarms
 from static.models.CrawlerInfo import CrawlerInfo
 from static.utils import crawlerInfoUtil
+from sqlalchemy.exc import OperationalError
 
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -100,26 +101,30 @@ class AcManager:
             crawler.run()
             count = 0
             error_oj = []
-            for ojName, value in crawler.wrongOJ.items():
-                user_info_id = self.sqlUtil.info.get((user[0], self.sqlUtil.ojInfo.get(ojName)))
-                if len(value) > 0:
-                    if user_info_id is not None:
-                        crawler_info = crawlerInfoUtil.query(user_info_id)
-                        retry_time = crawler_info.retryTimes if crawler_info is not None else 0
-                        # only alarm when retry_times >= max_retry_times, then clear out retry times
-                        if retry_time == CrawlerInfo.MAX_RETRY_TIMES:
-                            retry_time = 0
-                            count += 1
-                            error_oj.append(ojName)
-                        else:
-                            retry_time += 1
-                        crawlerInfoUtil.upsert(user_info_id, CrawlerInfo.CRAWLER_FAIL_STATUS, retry_time=retry_time)
-                else:
-                    if user_info_id is not None:
-                        crawlerInfoUtil.upsert(user_info_id, CrawlerInfo.CRAWLER_SUCCESS_STATUS)
-            if count > 0:
-                err_msg = AcManager.generate_alarm_msg(user[0], user[1], error_oj)
-                alarm.send_msg(err_msg)
+            try:
+                for ojName, value in crawler.wrongOJ.items():
+                    user_info_id = self.sqlUtil.info.get((user[0], self.sqlUtil.ojInfo.get(ojName)))
+                    if len(value) > 0:
+                        if user_info_id is not None:
+                            crawler_info = crawlerInfoUtil.query(user_info_id)
+                            retry_time = crawler_info.retryTimes if crawler_info is not None else 0
+                            # only alarm when retry_times >= max_retry_times, then clear out retry times
+                            if retry_time == CrawlerInfo.MAX_RETRY_TIMES:
+                                retry_time = 0
+                                count += 1
+                                error_oj.append(ojName)
+                            else:
+                                retry_time += 1
+                            crawlerInfoUtil.upsert(user_info_id, CrawlerInfo.CRAWLER_FAIL_STATUS, retry_time=retry_time)
+                    else:
+                        if user_info_id is not None:
+                            crawlerInfoUtil.upsert(user_info_id, CrawlerInfo.CRAWLER_SUCCESS_STATUS)
+                if count > 0:
+                    err_msg = AcManager.generate_alarm_msg(user[0], user[1], error_oj)
+                    alarm.send_msg(err_msg)
+            except OperationalError:
+                print('have Error in sql')
+
             user[3] = crawler.acArchive.copy()
             user[4] = crawler.submitNum.copy()
 

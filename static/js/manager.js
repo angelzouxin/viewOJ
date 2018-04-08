@@ -343,6 +343,13 @@ $(document).ready(function () {
         return false
     });
 
+    $.fn.form.settings.rules.exactUserId = function (value) {
+        if ($.isNumeric(value)) {
+            return value.length >= 8
+        }
+        return true
+    };
+
     $('.ui.form')
         .form({
             inline: true,
@@ -356,8 +363,8 @@ $(document).ready(function () {
                             prompt: 'Please enter your userId'
                         },
                         {
-                            type: 'minLength[8]',
-                            prompt: 'Your password must be at least {ruleValue} characters'
+                            type: 'exactUserId',
+                            prompt: 'student ID should be more than eight number',
                         }
                     ]
                 },
