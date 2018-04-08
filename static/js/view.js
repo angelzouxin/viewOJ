@@ -3,6 +3,7 @@ $(document).ready(function () {
     let grades = {};
 
     let option = {
+        backgroundColor: '#1b1c1d',
         title: {
             text: '增量图',
             textStyle: {

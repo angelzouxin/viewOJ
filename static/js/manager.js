@@ -268,6 +268,65 @@ Vue.component('selected-drop-down', {
 })
 
 $(document).ready(function () {
+
+    let user_list_table = new Vue({
+        el: '#user_list_table',
+        data: {
+            isActive: false,
+            selected: -1,
+            selectedlist: {},
+            slist: [],
+            searchlist: [],
+            list: user_list,
+            head_names: ['学号', '姓名', '是否记录', '权限', '账户下账号信息'],
+            page_size: 10,
+            page_index: 1,
+        },
+        created() {
+            this.setSlist(this.list);
+        },
+        methods: {
+            // 获取需要渲染到页面中的数据
+            setSlist(arr) {
+                this.slist = JSON.parse(JSON.stringify(arr));
+            },
+            // 搜索
+            search(e) {
+                let v = e.target.value,
+                    self = this;
+                self.searchlist = [];
+                if (v) {
+                    let ss = [];
+                    // 过滤需要的数据
+                    this.list.forEach(function (item, index) {
+                        if (item['permission'].indexOf(v) > -1) {
+                            if (self.searchlist.indexOf(item.permission) == -1) {
+                                self.searchlist.push(item.permission);
+                            }
+                            ss.push(item);
+                        } else if (item['userId'].indexOf(v) > -1) {
+                            if (self.searchlist.indexOf(item.userId) == -1) {
+                                self.searchlist.push(item.userId);
+                            }
+                            ss.push(item);
+                        } else if (item['userName'].indexOf(v) > -1) {
+                            if (self.searchlist.indexOf(item.userName) == -1) {
+                                self.searchlist.push(item.userName);
+                            }
+                            ss.push(item);
+                        }
+                    });
+                    this.setSlist(ss); // 将过滤后的数据给了slist
+                } else {
+                    // 没有搜索内容，则展示全部数据
+                    this.setSlist(this.list);
+                }
+            },
+
+        },
+        watch: {}
+    });
+
     $('.ui.add.user.button').click(function () {
         $('.ui.add.user.modal').modal('show');
     });
@@ -295,6 +354,10 @@ $(document).ready(function () {
                         {
                             type: 'empty',
                             prompt: 'Please enter your userId'
+                        },
+                        {
+                            type: 'minLength[8]',
+                            prompt: 'Your password must be at least {ruleValue} characters'
                         }
                     ]
                 },

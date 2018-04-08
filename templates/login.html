@@ -36,16 +36,16 @@
                     Log-in to your account
                 </div>
             </h2>
-            <form action="{{ url_for('login') }}" method="POST" class="ui large form error"
+            <form action="{{ url_for('login') }}" method="POST" class="ui large form"
                   _vimium-has-onclick-listener="">
                 <div class="ui stacked segment">
-                    <div class="field error">
+                    <div class="field">
                         <div class="ui left icon input">
                             <i class="user icon"></i>
                             <input type="text" name="username" placeholder="username">
                         </div>
                     </div>
-                    <div class="field error">
+                    <div class="field">
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
                             <input type="password" name="password" placeholder="password">
@@ -53,14 +53,40 @@
                     </div>
                     <button class="ui fluid large teal submit button" type="submit">Login</button>
                 </div>
-
+                <div class="ui error message"></div>
             </form>
 
         </div>
     </div>
 
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-
+    <script>
+        $('.ui.form')
+            .form({
+                fields: {
+                    name: {
+                        identifier: 'username',
+                        rules: [
+                            {
+                                type: 'empty',
+                                prompt: 'Please enter your name'
+                            }
+                        ]
+                    },
+                    password: {
+                        identifier: 'password',
+                        rules: [
+                            {
+                                type: 'empty',
+                                prompt: 'Please enter a password'
+                            },
+                            {
+                                type: 'minLength[6]',
+                                prompt: 'Your password must be at least {ruleValue} characters'
+                            }
+                        ]
+                    },
+                }
+            })
+        ;
+    </script>
 {% endblock %}

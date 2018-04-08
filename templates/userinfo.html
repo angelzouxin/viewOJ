@@ -102,7 +102,7 @@
                 let login_user_id =
                     '{{ current_user.userId if current_user.is_anonymous == False else 'anonymous' }}';
                 let is_crawler =
-                    '{{ (current_user.yn if current_user.is_anonymous == False else False) }}' == 'True';
+                    '{{ (current_user.yn if current_user.is_anonymous == False else False) }}' == '1';
                 let user_oj_info =
                     {{ items|tojson|safe }};
                 for (let [item_index, item] of user_oj_info.items.entries()) {
@@ -120,8 +120,7 @@
                     </div>
                     <div class="six wide floated column">
                         <div class="ui mini input">
-                            <input type="startDate" id="st" placeholder="yyyy-mm-dd" required
-                                   autofocus>
+                            <input type="startDate" id="st" placeholder="yyyy-mm-dd" required>
                         </div>
                         <b>to</b>
                         <div class="ui mini input">
