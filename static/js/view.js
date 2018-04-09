@@ -17,22 +17,27 @@ $(document).ready(function () {
                 mark: {show: true},
                 dataView: {
                     show: true, readOnly: true,
+                    backgroundColor: 'rgba(27,28,29,.8)',
+                    textColor: 'rgba(255,255,255,.9)!important',
+                    title : '转换为表格',
+                    lang: ['训练数据统计表', '关闭'],
                     optionToContent: function (opt) {
                         let axisData = opt.xAxis[0].data; //坐标数据
                         let series = opt.series; //折线图数据
-                        let tdHeads = '<td  style="padding: 0 10px">用户</td>'; //表头
+                        let tdHeads = '<th>学号</th><th>姓名</th>>'; //表头
                         let tdBodys = ''; //数据
                         series.forEach(function (item) {
                             //组装表头
                             tdHeads += `<th>${item.name}</th>`;
                         });
-                        let table = `<table class="ui selectable fixed compact celled table"><tbody><tr>${tdHeads} </tr>`;
+                        let table = `<table class="ui selectable fixed inverted celled table"><thead><tr>${tdHeads} </tr></thead><tbody>`;
                         for (let i = 0, l = axisData.length; i < l; i++) {
                             for (let j = 0; j < series.length; j++) {
                                 //组装表数据
                                 tdBodys += `<td>${ series[j].data[i]}</td>`;
                             }
-                            table += `<tr><td>${axisData[i]}</td>${tdBodys}</tr>`;
+                            let datas = axisData[i].split(',');
+                            table += `<tr><td>${datas[0]}</td><td>${datas[1]}</td>${tdBodys}</tr>`;
                             tdBodys = '';
                         }
                         table += '</tbody></table>';
