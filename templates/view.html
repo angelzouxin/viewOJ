@@ -79,9 +79,9 @@
                 {% raw %}
                 <div class="ui sticky" style="width: 670px !important; height: 43px !important; left: 264.5px;">
                     <div id="chart-guide-menu" class="ui secondary inverted pointing grade menu">
-                        <a class="item" :href="'#' + grade"
+                        <a class="item" @click="goto(grade)"
                            v-for="grade in grades">
-                            {{ grade }}
+                            {{ grade.slice(1,3) + '届' }}
                         </a>
                     </div>
                     <script>
@@ -89,6 +89,18 @@
                             el: "#chart-guide-menu",
                             data: {
                                 grades: [],
+                            },
+                            methods: {
+                                goto: (grade) => {
+                                    $('html, body').animate({scrollTop: $(`#${grade}`).offset().top - 30}, 500,
+                                        () => {
+                                            let grade_offset = $(`#${grade}`).offset().top;
+                                            let menu_offset = $('#chart-guide-menu').offset().top;
+                                            if (menu_offset > grade_offset) {
+                                                 $('html, body').animate({scrollTop: $(`#${grade}`).offset().top - 30}, 500)
+                                            }
+                                        })
+                                }
                             }
                         })
                     </script>

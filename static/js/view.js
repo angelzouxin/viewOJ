@@ -6,6 +6,7 @@ $(document).ready(function () {
         backgroundColor: '#1b1c1d',
         title: {
             text: '增量图',
+            subtext: 'power by zucc crawler',
             textStyle: {
                 fontWeight: 'normal',              //标题颜色
                 color: '#ffffff'
@@ -138,7 +139,7 @@ $(document).ready(function () {
                 chart_guide_menu.grades = [];
                 $.each(data['dates'], function (idx, info) {
 
-                    let grade = info['userId'].substr(0, 4);
+                    let grade = info['userId'].substr(0, 3);
                     let userId = info['userId'] + ',' + info['userName'];
 
                     let acTimes = 0;
@@ -163,7 +164,7 @@ $(document).ready(function () {
 
                     let option_grade = $.extend(true, {}, option);
 
-                    option_grade.title.text = option_grade.title.text + grade;
+                    option_grade.title.text = getChartTitle(grade);
 
                     $.each(info, function (idx, x) {
                         option_grade.xAxis.data.push(x['userId']);
@@ -175,8 +176,8 @@ $(document).ready(function () {
                     $("#chart").append("<div class=\"ui divider\"></div>");
                     let myChart = echarts.init($("#" + grade).get(0));
                     myChart.setOption(option_grade);
-                    myChart.on('click', echartClick)
-                    charts.push(myChart)
+                    myChart.on('click', echartClick);
+                    charts.push(myChart);
                     chart_guide_menu.grades.push(grade)
                 });
 
@@ -199,4 +200,8 @@ $(document).ready(function () {
     $(window).resize(function () {
         $lodash.map(charts, o => o.resize())
     });
+
+    function getChartTitle(grade) {
+        return '集训队' + grade.slice(1,3) + '届队员训练情况统计图'
+    }
 });
