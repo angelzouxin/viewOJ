@@ -64,6 +64,8 @@ class AcManager:
                 sub_Num[ojName] = self.sqlUtil.get_subTimes_by_id(userInfoId)
                 ac_archive[ojName] = set(self.sqlUtil.get_subInfo_by_id(userInfoId))
             oj_id['default'] = oj_id.get('zucc') is None and oj_id.get('hdu') or oj_id.get('zucc')
+            if oj_id['default'] is None:
+                oj_id['default'] = userId
             self.user_list.append([userId, userName, oj_id, ac_archive, sub_Num])
 
     # get pre info from excel
@@ -98,7 +100,11 @@ class AcManager:
         from static.utils.countOJUtil import Crawler
         for user in self.user_list:
             crawler = Crawler(user[2])
-            crawler.run()
+            try:
+                crawler.run()
+            except BaseException:
+                print('have wrong!')
+                alarm.send_msg('crawel wrong!' + user[0] + ': ' + user[1])
             count = 0
             error_oj = []
             try:
@@ -175,30 +181,33 @@ class AcManager:
         w.save(out_file)
 
     def save_to_db(self):
-        pros = []
-        dailyInfos = []
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         for user in self.user_list:
-            acTimes = {}
-            userId = user[0]
-            ac_Num, ac_archive = user[:-3:-1]
-            for ojName, acPros in ac_archive.items():
-                userInfoId = self.sqlUtil.info.get((userId, self.sqlUtil.ojInfo.get(ojName)))
-                if userInfoId is None: continue
-                acTimes[userInfoId] = len(acPros)
-                for pro in acPros:
-                    pros.append((userInfoId, pro, date))
+            try:
+                pros = []
+                dailyInfos = []
+                acTimes = {}
+                userId = user[0]
+                ac_Num, ac_archive = user[:-3:-1]
+                for ojName, acPros in ac_archive.items():
+                    userInfoId = self.sqlUtil.info.get((userId, self.sqlUtil.ojInfo.get(ojName)))
+                    if userInfoId is None: continue
+                    acTimes[userInfoId] = len(acPros)
+                    for pro in acPros:
+                        pros.append((userInfoId, pro, date))
 
-            for ojName, subTimes in ac_Num.items():
-                userInfoId = self.sqlUtil.info.get((userId, self.sqlUtil.ojInfo.get(ojName)))
-                if userInfoId is None: continue
-                if subTimes < 0:
-                    subTimes = acTimes[userInfoId]
+                for ojName, subTimes in ac_Num.items():
+                    userInfoId = self.sqlUtil.info.get((userId, self.sqlUtil.ojInfo.get(ojName)))
+                    if userInfoId is None: continue
+                    if subTimes < 0:
+                        subTimes = acTimes[userInfoId]
 
-                dailyInfos.append((userInfoId, acTimes[userInfoId], subTimes, date))
+                    dailyInfos.append((userInfoId, acTimes[userInfoId], subTimes, date))
 
-        self.sqlUtil.insert_dailyInfo(dailyInfos)
-        self.sqlUtil.insert_subInfo(pros)
+                self.sqlUtil.insert_dailyInfo(dailyInfos)
+                self.sqlUtil.insert_subInfo(pros)
+            except BaseException:
+                print('have Error when insert to sqlite')
 
     # get Incremental
     @staticmethod
