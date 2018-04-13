@@ -126,6 +126,8 @@ class Crawler:
             acRegex = cf.get(oj, 'acRegex')
             submitRegex = cf.get(oj, 'submitRegex')
             name = self.getName(oj)
+            if name is None:
+                continue
             print(website % name)
             req = urllib.request.Request(
                 url=website % name,
@@ -157,6 +159,8 @@ class Crawler:
             name = self.getName(oj)
         else:
             name = query_name
+        if name is None:
+            return
         req = urllib.request.Request(
             url='http://acdream.info/user/' + name,
             headers=self.headers
@@ -251,6 +255,8 @@ class Crawler:
             name = self.getName(oj)
         else:
             name = query_name
+        if name is None:
+            return
         print('start ' + oj)
         loopFlag = True
         loopTimes = 0
@@ -308,6 +314,8 @@ class Crawler:
             name = self.getName(oj)
         else:
             name = query_name
+        if name is None:
+            return
         loopFlag = True
         loopTimes = 0
         count = 300
@@ -371,6 +379,8 @@ class Crawler:
             name = self.getName(oj)
         else:
             name = query_name
+        if name is None:
+            return
         req = urllib.request.Request(
             url='https://www.codechef.com/recent/user?page=0&user_handle=%s' % name,
             headers=self.headers
@@ -423,6 +433,8 @@ class Crawler:
             name = self.getName(oj)
         else:
             name = query_name
+        if name is None:
+            return
         req = urllib.request.Request(
             url='http://www.spoj.com/users/%s' % name,
             headers=self.headers
@@ -456,6 +468,8 @@ class Crawler:
             name = self.getName(oj)
         else:
             name = query_name
+        if name is None:
+            return
         client = tornado.httpclient.AsyncHTTPClient()
         VJheaders = {
             'Host': 'vjudge.net',
@@ -548,6 +562,8 @@ class Crawler:
             name = self.getName(oj)
         else:
             name = query_name
+        if name is None:
+            return
         VJheaders = {
             'Host': 'vjudge.net',
             'Origin': 'http://vjudge.net',
@@ -632,6 +648,8 @@ class Crawler:
             name = self.getName(oj)
         else:
             name = query_name
+        if name is None:
+            return
         req = urllib.request.Request(
             url='http://acm.uestc.edu.cn/user/userCenterData/%s' % name,
             headers=self.headers,
@@ -658,6 +676,8 @@ class Crawler:
     def getAsyncUestc(self, jsonString):
         oj = 'uestc'
         name = self.getName(oj)
+        if name is None:
+            return
         dataDict = json.loads(jsonString)
         # detect AC item
         if dataDict['result'] == 'error':
@@ -705,7 +725,7 @@ class Crawler:
         return True
 
     def getName(self, ojName):
-        return self.name if self.dict_name.get(ojName) is None else self.dict_name.get(ojName)
+        return self.dict_name.get(ojName)
 
     def run(self):
         self.getInfoNoAuth()
