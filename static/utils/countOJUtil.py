@@ -2,6 +2,8 @@
 
 import http.cookiejar
 import json
+import time
+import random
 import re
 from lxml import etree
 
@@ -713,6 +715,7 @@ class Crawler:
             print('%s is not support' % oj_name)
             raise Exception('%s is not support' % oj_name)
         try:
+            time.sleep(round(random.random(), 2))
             if oj_name == 'codeforces':
                 res = self.getProInfoCodeforces(pro_id)
                 return res
@@ -743,8 +746,10 @@ class Crawler:
         return [accept, submission]
 
     def getProInfoCodeforces(self, pro_id):
-        if pro_id > '100000':
+        origin_pro = self.getCodeforcesProNumbser(pro_id)
+        if origin_pro > [100000]:
             return [None, None]
+        print('start crawler cf pro %s' % pro_id)
         problems = 'http://codeforces.com/problemset/page/%s'
         req = urllib.request.Request(
             url=problems % 1,
@@ -754,23 +759,22 @@ class Crawler:
         left_page = 1
         right_page = etree.HTML(html).xpath('//div[@class="pagination"]//span[@class="page-index"]/@pageindex')[-1]
         right_page = int(right_page)
-        proRegex = "([a-zA-Z]+|[0-9]+)"
-        origin_pro = re.findall(proRegex, pro_id, re.S)
         page_index = None
         while left_page <= right_page:
             page_index = (left_page + right_page) // 2
+            time.sleep(round(random.random(), 2))
             req = urllib.request.Request(
                 url=problems % page_index,
                 headers=self.headers
             )
             html = self.opener.open(req, timeout=10).read()
             table = etree.HTML(html).xpath('//table[@class="problems"][1]/*')[1:]
-            if len(re.findall(pro_id, str(html), re.S)) == 0:
+            if len(re.findall('[^0-9]%s[^0-9a-zA-Z]' % pro_id, str(html), re.S)) == 0:
                 max_pro_id = table[0].xpath('td[1]/a[1]/text()')[0].strip()
                 min_pro_id = table[-1].xpath('td[1]/a[1]/text()')[0].strip()
                 print(max_pro_id, min_pro_id)
-                max_pro = re.findall(proRegex, max_pro_id, re.S)
-                min_pro = re.findall(proRegex, min_pro_id, re.S)
+                max_pro = self.getCodeforcesProNumbser(max_pro_id)
+                min_pro = self.getCodeforcesProNumbser(min_pro_id)
                 if origin_pro > max_pro:
                     right_page = page_index - 1
                 else:
@@ -780,10 +784,16 @@ class Crawler:
                 _pro_id = td.xpath('td[1]/a[1]/text()')
                 _solved = td.xpath('td[last()]/a[1]/text()')
                 _pro_id = _pro_id[0].strip() if len(_pro_id) > 0 else None
-                _solved = _solved[0].strip('\xa0x') if len(_solved) > 0 else None
+                _solved = int(_solved[0].strip('\xa0x')) if len(_solved) > 0 else None
                 if _pro_id == pro_id:
                     return [_solved, None]
         return [None, None]
+
+
+    @staticmethod
+    def getCodeforcesProNumbser(pro_id):
+        proRegex = "([a-zA-Z]+|[0-9]+)"
+        return list(map(lambda x: int(x) if x.isdigit() else x, re.findall(proRegex, pro_id, re.S)))
 
 
 if __name__ == '__main__':

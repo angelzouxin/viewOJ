@@ -23,11 +23,11 @@ def queryByIds(user_ids, count_date):
     return [item.to_dict() for item in result]
 
 
-def add(user_id, rating=1500, count_date=None):
-    rating = UserRatingInfo(user_id, rating)
+def add(user_id, rating, count_date=None):
+    rating_info = UserRatingInfo(user_id, rating)
     if count_date:
-        rating.countDate = count_date
-    db.session.add(rating)
+        rating_info.countDate = count_date
+    db.session.add(rating_info)
     db.session.commit()
     return True
 
