@@ -198,5 +198,10 @@ def search_sub_info():
     return toolsUtil.obj_to_json({'status': 'ok', 'result': {'sub_info': sub_info}})
 
 
+@app.route('/rank_list', methods=['GET', 'POST'])
+def rank_list():
+    return render_template('ranklist.html', title='RankList')
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=7001, debug=True)

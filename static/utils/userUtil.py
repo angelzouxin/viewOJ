@@ -34,10 +34,13 @@ def update_permission(user_id, permission):
     return False
 
 
-def list_by_filter(user_id=None, user_name=None):
+def list_by_filter(user_id=None, user_name=None, yn=None):
+    db_query = db.session.query(User)
+    if yn:
+        db_query = db_query.filter(User.yn == yn)
     if user_id or user_name:
-        return db.session.query(User).filter((User.userName == user_name) | (User.userId == user_id))
-    return db.session.query(User).all()
+        db_query = db_query.filter((User.userName == user_name) | (User.userId == user_id))
+    return db_query.all()
 
 
 def reset(user_id):

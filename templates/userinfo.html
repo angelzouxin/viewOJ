@@ -31,6 +31,10 @@
                class="item">Manager</a>
         {% endif %}
         <a class="active item">UserInfo</a>
+        <form id='rankList' action="{{ url_for('rank_list') }}" method="GET">
+        </form>
+        <a href="javascript:{}" onclick="document.getElementById('rankList').submit();"
+           class="item">RankList</a>
     </div>
     <div class="pusher">
         <div class="ui inverted vertical masthead center aligned segment">
@@ -51,6 +55,10 @@
                            class="item">Manager</a>
                     {% endif %}
                     <a class="active item">UserInfo</a>
+                    <form id='rankList' action="{{ url_for('rank_list') }}" method="GET">
+                    </form>
+                    <a href="javascript:{}" onclick="document.getElementById('rankList').submit();"
+                       class="item">RankList</a>
                     <div class="right item">
                         {% if current_user.is_anonymous %}
                             <form id='login' action="{{ url_for('login') }}" method="POST">

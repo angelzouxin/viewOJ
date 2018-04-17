@@ -3,9 +3,9 @@
 {% endblock %}
 {% block content %}
     <div class="ui vertical inverted sidebar menu left" style="">
-        <a id=home class="active item">Home</a>
+        <a id="home" class="active item">Home</a>
         {% if current_user.permission == 'admin' %}
-            <form id='manager' action="{{ url_for('manager') }}" method="GET">
+            <form id="manager" action="{{ url_for('manager') }}" method="GET">
             </form>
             <a href="javascript:{}" onclick="document.getElementById('manager').submit();"
                class="item">Manager</a>
@@ -16,6 +16,10 @@
             <a href="javascript:{}" onclick="document.getElementById('userInfo').submit();"
                class="item">UserInfo</a>
         {% endif %}
+        <form id='rankList' action="{{ url_for('rank_list') }}" method="GET">
+        </form>
+        <a href="javascript:{}" onclick="document.getElementById('rankList').submit();"
+           class="item">RankList</a>
     </div>
     <div class="pusher">
         <div class="ui inverted vertical masthead center aligned segment">
@@ -37,6 +41,10 @@
                         <a href="javascript:{}" onclick="document.getElementById('userInfo').submit();"
                            class="item">UserInfo</a>
                     {% endif %}
+                    <form id='rankList' action="{{ url_for('rank_list') }}" method="GET">
+                    </form>
+                    <a href="javascript:{}" onclick="document.getElementById('rankList').submit();"
+                       class="item">RankList</a>
                     <div class="right item">
                         {% if current_user.is_anonymous %}
                             <form id='login' action="{{ url_for('login') }}" method="POST">
@@ -97,7 +105,7 @@
                                             let grade_offset = $(`#${grade}`).offset().top;
                                             let menu_offset = $('#chart-guide-menu').offset().top;
                                             if (menu_offset > grade_offset) {
-                                                 $('html, body').animate({scrollTop: $(`#${grade}`).offset().top - 30}, 500)
+                                                $('html, body').animate({scrollTop: $(`#${grade}`).offset().top - 30}, 500)
                                             }
                                         })
                                 }

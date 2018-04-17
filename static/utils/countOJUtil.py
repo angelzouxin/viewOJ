@@ -3,6 +3,7 @@
 import http.cookiejar
 import json
 import re
+from lxml import etree
 
 import urllib
 from urllib import parse
@@ -427,35 +428,6 @@ class Crawler:
         self.submitNum[oj] += submitNum
         return len(self.submission[oj])
 
-    def getSpoj(self, query_name=''):
-        oj = 'spoj'
-        if query_name == '':
-            name = self.getName(oj)
-        else:
-            name = query_name
-        if name is None:
-            return
-        req = urllib.request.Request(
-            url='http://www.spoj.com/users/%s' % name,
-            headers=self.headers
-        )
-        html = ''
-        try:
-            html = str(self.opener.open(req).read())
-        except:
-            self.wrongOJ[oj].append(name)
-            return 0
-        submission = re.findall(r'Solutions submitted</dt>.*?<dd>([0-9]*?)</dd>', html, re.S)
-        rawinfo = re.findall(r'<table class="table table-condensed">(.*?)</table>', html, re.S)
-        try:
-            acProblem = re.findall(r'<a href="/status/.*?/">(.*?)</a>', rawinfo[0], re.S)
-            self.submitNum[oj] += int(submission[0])
-            self.acArchive[oj] = self.acArchive[oj] | set(acProblem)
-        except:
-            self.wrongOJ[oj].append(name)
-            return 0
-        return submission[0], acProblem
-
     def getVjudge(self, query_name=''):
         '''
         We will set up a cache pool to restore the cookie and keep it
@@ -724,8 +696,8 @@ class Crawler:
         self.name = self.dict_name['default']
         return True
 
-    def getName(self, ojName):
-        return self.dict_name.get(ojName)
+    def getName(self, oj_name):
+        return self.dict_name.get(oj_name)
 
     def run(self):
         self.getInfoNoAuth()
@@ -733,11 +705,87 @@ class Crawler:
         # self.getCodechef()
         self.getCodeforces()
         # self.asyncGetCodeforces()
-        self.getSpoj()
         self.getUestc()
         self.getVjudge()
+
+    def getProInfo(self, oj_name, pro_id):
+        if oj_name not in self.supportedOJ:
+            print('%s is not support' % oj_name)
+            raise Exception('%s is not support' % oj_name)
+        try:
+            if oj_name == 'codeforces':
+                res = self.getProInfoCodeforces(pro_id)
+                return res
+            res = self.getProInfoNoAuth(oj_name, pro_id)
+            return res
+        except BaseException:
+            print('爬取oj%s题目%s相关信息时出错' % (oj_name, pro_id))
+            return [None, None]
+
+    def getProInfoNoAuth(self, oj_name, pro_id):
+        import configparser
+        cf = configparser.ConfigParser()
+        cf.read("static/regexDict.ini")
+        problemsite = cf.get(oj_name, 'problemsite')
+        problemSubRegex = cf.get(oj_name, 'problemSubRegex')
+        problemAcRegex = cf.get(oj_name, 'problemAcRegex')
+        req = urllib.request.Request(
+            url=problemsite % pro_id,
+            headers=self.headers
+        )
+        html = str(self.opener.open(req, timeout=10).read())
+        submission = re.findall(problemSubRegex, html, re.S)
+        accept = re.findall(problemAcRegex, html, re.S)
+        submission = int(submission[0]) if len(submission) > 0 else None
+        accept = int(accept[0]) if len(accept) > 0 else None
+        print('# accept : ', accept)
+        print('# submission : ', submission)
+        return [accept, submission]
+
+    def getProInfoCodeforces(self, pro_id):
+        if pro_id > '100000':
+            return [None, None]
+        problems = 'http://codeforces.com/problemset/page/%s'
+        req = urllib.request.Request(
+            url=problems % 1,
+            headers=self.headers
+        )
+        html = self.opener.open(req, timeout=10).read()
+        left_page = 1
+        right_page = etree.HTML(html).xpath('//div[@class="pagination"]//span[@class="page-index"]/@pageindex')[-1]
+        right_page = int(right_page)
+        proRegex = "([a-zA-Z]+|[0-9]+)"
+        origin_pro = re.findall(proRegex, pro_id, re.S)
+        page_index = None
+        while left_page <= right_page:
+            page_index = (left_page + right_page) // 2
+            req = urllib.request.Request(
+                url=problems % page_index,
+                headers=self.headers
+            )
+            html = self.opener.open(req, timeout=10).read()
+            table = etree.HTML(html).xpath('//table[@class="problems"][1]/*')[1:]
+            if len(re.findall(pro_id, str(html), re.S)) == 0:
+                max_pro_id = table[0].xpath('td[1]/a[1]/text()')[0].strip()
+                min_pro_id = table[-1].xpath('td[1]/a[1]/text()')[0].strip()
+                print(max_pro_id, min_pro_id)
+                max_pro = re.findall(proRegex, max_pro_id, re.S)
+                min_pro = re.findall(proRegex, min_pro_id, re.S)
+                if origin_pro > max_pro:
+                    right_page = page_index - 1
+                else:
+                    left_page = page_index + 1
+                continue
+            for td in table:
+                _pro_id = td.xpath('td[1]/a[1]/text()')
+                _solved = td.xpath('td[last()]/a[1]/text()')
+                _pro_id = _pro_id[0].strip() if len(_pro_id) > 0 else None
+                _solved = _solved[0].strip('\xa0x') if len(_solved) > 0 else None
+                if _pro_id == pro_id:
+                    return [_solved, None]
+        return [None, None]
 
 
 if __name__ == '__main__':
     a = Crawler(query_name={'default': 'sillyrobot', 'zucc': '31601185', 'vjudge': 'hxamszi', 'codeforces': 'yjc9696'})
-    a.getCodeforces()
+    a.getProInfoCodeforces()
