@@ -242,6 +242,18 @@ $(document).ready(function () {
         'hdu', 'poj', 'zoj', 'CODEVS', 'bzoj',
         'codeforces', 'SJTUOJ', 'vjudge', 'ural', 'spoj', 'zucc'
     ];
+    const RARING_NAME = {
+        1699: 'Pupil',
+        2099: 'Specialist',
+        2399: 'Expert',
+        2699: 'Candidate Master',
+        2999: 'Master',
+        3399: 'GrandMaster',
+        3899: 'Legendary GrandMaster',
+        9999: 'International GrandMaster',
+    };
+    const RATING_NUMBER = [1699, 2099, 2399, 2699, 2999, 3399, 3899, 9999];
+
     let daily_info = {};
     let labelTop = {
         normal: {
@@ -296,7 +308,17 @@ $(document).ready(function () {
     let radius = [40, 55];
     let DATE_FORMAT = 'YYYY-MM-DD';
 
-    const user_id = window.location.href.split('/').pop().split('?')[0]
+    function getRankName(rating) {
+        for (let i = 0; i < RATING_NUMBER.length; i++) {
+            let rating_top = RATING_NUMBER[i];
+            if (rating_top > rating) {
+                return RARING_NAME[rating_top]
+            }
+        }
+        return 'International GrandMaster';
+    }
+
+    const user_id = window.location.href.split('/').pop().split('?')[0];
     const dailyInfoAcRatioOption = {
         backgroundColor: '#1b1c1d',
         legend: {
@@ -608,10 +630,154 @@ $(document).ready(function () {
             }
         ]
     };
+    const rankListChartOption = {
+        chart: {
+            renderTo: 'rank_list_charts',
+            defaultSeriesType: 'line',
+            backgroundColor: null
+        },
+        title: {
+            text: '能力提升轨迹',
+            style: {
+                color: 'rgba(255,255,255,.9)!important',
+            },
+        },
+        loading: {
+            hideDuration: 500,
+            labelStyle: {
+                fontWeight: 'bold',
+                position: 'relative',
+                top: '1em'
+            },
+            showDuration: 500,
+            style: {
+                position: 'absolute',
+                backgroundColor: null,
+                opacity: 0.5,
+                textAlign: 'center',
+                color: 'rgba(255,255,255,.9)!important',
+            }
+        },
+        xAxis: {
+            type: 'datetime',
+            dataTimeLabelFormats: {
+                month: '%e. %b',
+                year: '%b'
+            },
+            labels: {
+                style: {
+                    color: 'rgba(255,255,255,.9)!important',
+                },
+            },
+        },
+        yAxis: {
+            title: {
+                text: 'Rating',
+                style: {
+                    color: 'rgba(255,255,255,.9)!important',
+                },
+            },
+            labels: {
+                style: {
+                    color: 'rgba(255,255,255,.9)!important',
+                },
+            },
+            min: null,
+            minorGridLineWidth: 100,
+            gridLineWidth: 0,
+            alternateGridColor: null,
+            plotBands: [{
+                from: 0,
+                to: 1700,
+                color: '#c3c3c3'
+            }, {
+                from: 1700,
+                to: 2100,
+                color: '#6cd8b3'
+            }, {
+                from: 2100,
+                to: 2400,
+                color: '#a0a0ff'
+            }, {
+                from: 2400,
+                to: 2700,
+                color: '#ff7dff'
+            }, {
+                from: 2700,
+                to: 3000,
+                color: '#ffbb55'
+            }, {
+                from: 3000,
+                to: 3400,
+                color: '#ff6b6c'
+            }, {
+                from: 3400,
+                to: 3900,
+                color: '#ff2c2d'
+            }, {
+                from: 3900,
+                to: 99999,
+                color: '#aa0200'
+            }]
+        },
+        tooltip: {
+
+            formatter: function () {
+                return '<b>Rating</b>：' + this.y + '(' + this.point.change + ')' + '<br/>'
+                    + '<b>Rank Title</b>：' + getRankName(this.y) + '<br/>'
+                    + '<b>时间</b>：' + Highcharts.dateFormat('%Y-%m-%e', this.x) + '<br/>'
+            }
+        },
+        plotOptions: {
+            spline: {
+                marker: {
+                    radius: 4,
+                    lineColor: '#666666',
+                    lineWidth: 1
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            name: '参赛轨迹',
+            marker: {symbol: 'square'},
+            showInLegend: false,
+            data: []
+        }],
+        navigation: {
+            menuItemStyle: {
+                fontSize: '10px'
+            }
+        }
+    };
 
     let dailyInfoCharts = echarts.init($("#dailyInfo")[0], 'dark');
     let dailyAcRatioCharts = echarts.init($("#dailyAcRatioInfo")[0], 'dark');
-    let weeklyInfoCountChats = echarts.init($("#weeklyInfoCount")[0], 'dark')
+    let weeklyInfoCountCharts = echarts.init($("#weeklyInfoCount")[0], 'dark');
+    let rankInfoCharts = new Highcharts.Chart(rankListChartOption);
+    rankInfoCharts.showLoading();
+    $.get('/rank_list/' + user_id, null, function (response) {
+        rankInfoCharts.hideLoading();
+        if (response.status == 'ok') {
+            let rank_info = [{
+                'x': +moment('2018-04-17'),
+                'y': 1500,
+                'change': 0,
+                'rating': 1500
+            }].concat(response.result.rank_info);
+            for (var i = 1; i < rank_info.length; i++) {
+                rank_info[i]['x'] = +moment(rank_info[i]['countDate']);
+                rank_info[i]['y'] = parseFloat(rank_info[i]['rating']);
+                rank_info[i]['change'] = rank_info[i]['rating'] - (i > 0 ? rank_info[i - 1]['rating'] : 1500)
+            }
+            rankListChartOption.series[0].data = rank_info;
+            rankInfoCharts = new Highcharts.Chart(rankListChartOption);
+        } else {
+            alert('数据获取失败')
+        }
+    }, 'json');
     let converDailyCountData = function (p, key) {
         return $lodash.map(OJ_NAME, o => {
             return {
@@ -730,7 +896,7 @@ $(document).ready(function () {
                 });
                 weeklyInfoCountOption.series[1].data = sub_info_array;
                 weeklyInfoCountOption.series[0].data = ac_info_array;
-                weeklyInfoCountChats.setOption(weeklyInfoCountOption);
+                weeklyInfoCountCharts.setOption(weeklyInfoCountOption);
                 if (is_show == false && is_crawler
                     && login_user_id == user_id
                     && $lodash.sum(sub_info_array) == 0
@@ -775,70 +941,90 @@ $(document).ready(function () {
     $(window).resize(function () {
         dailyInfoCharts.resize();
         dailyAcRatioCharts.resize();
-        weeklyInfoCountChats.resize();
+        weeklyInfoCountCharts.resize();
     });
-    if (login_user_id != 'anonymous')
-        new Vue({
-        el: '#user_oj_info_table',
+    let userinfo_guide_menu = new Vue({
+        el: "#userinfo-guide-menu",
         data: {
-            isActive: false,
-            selected: -1,
-            selectedlist: {},
-            slist: [],
-            searchlist: [],
-            list: user_oj_info.items,
-            user_id: user_oj_info.user_id,
-            user_name: user_oj_info.user_name,
-        },
-        created() {
-            this.setSlist(this.list);
+            infos: [{name: '题数与信息汇总', tag_id: 'dailyAcRatioInfo'}],
         },
         methods: {
-            // 获取需要渲染到页面中的数据
-            setSlist(arr) {
-                this.slist = JSON.parse(JSON.stringify(arr));
-            },
-            // 搜索
-            search(e) {
-                let v = e.target.value,
-                    self = this;
-                self.searchlist = [];
-                if (v) {
-                    let ss = [];
-                    // 过滤需要的数据
-                    this.list.forEach(function (item) {
-                        if (item['oj_name'].indexOf(v) > -1) {
-                            if (self.searchlist.indexOf(item.oj_name) == -1) {
-                                self.searchlist.push(item.oj_name);
-                            }
-                            ss.push(item);
-                        } else if (item['user_oj_id'] && item['user_oj_id'].indexOf(v) > -1) {
-                            if (self.searchlist.indexOf(item.user_oj_id) == -1) {
-                                self.searchlist.push(item.user_oj_id);
-                            }
-                            ss.push(item);
-                        } else if (item['user_name'].indexOf(v) > -1) {
-                            if (self.searchlist.indexOf(item.user_name) == -1) {
-                                self.searchlist.push(item.user_name);
-                            }
-                            ss.push(item);
-                        } else if (item['user_id'].indexOf(v) > -1) {
-                            if (self.searchlist.indexOf(item.user_id) == -1) {
-                                self.searchlist.push(item.user_id);
-                            }
-                            ss.push(item);
+            goto: (tag_id) => {
+                $('html, body').animate({scrollTop: $(`#${tag_id}`).offset().top - 30}, 500,
+                    () => {
+                        let grade_offset = $(`#${tag_id}`).offset().top;
+                        let menu_offset = $('#userinfo-guide-menu').offset().top;
+                        if (menu_offset > grade_offset) {
+                            $('html, body').animate({scrollTop: $(`#${tag_id}`).offset().top - 30}, 500)
                         }
-                    });
-                    this.setSlist(ss); // 将过滤后的数据给了slist
-                } else {
-                    // 没有搜索内容，则展示全部数据
-                    this.setSlist(this.list);
-                }
-            },
-
-        },
-        watch: {}
+                    })
+            }
+        }
     })
+    if (login_user_id != 'anonymous') {
+        userinfo_guide_menu.infos.push({name: '用户oj信息详情', tag_id: 'user_oj_info_table'});
+        new Vue({
+            el: '#user_oj_info_table',
+            data: {
+                isActive: false,
+                selected: -1,
+                selectedlist: {},
+                slist: [],
+                searchlist: [],
+                list: user_oj_info.items,
+                user_id: user_oj_info.user_id,
+                user_name: user_oj_info.user_name,
+            },
+            created() {
+                this.setSlist(this.list);
+            },
+            methods: {
+                // 获取需要渲染到页面中的数据
+                setSlist(arr) {
+                    this.slist = JSON.parse(JSON.stringify(arr));
+                },
+                // 搜索
+                search(e) {
+                    let v = e.target.value,
+                        self = this;
+                    self.searchlist = [];
+                    if (v) {
+                        let ss = [];
+                        // 过滤需要的数据
+                        this.list.forEach(function (item) {
+                            if (item['oj_name'].indexOf(v) > -1) {
+                                if (self.searchlist.indexOf(item.oj_name) == -1) {
+                                    self.searchlist.push(item.oj_name);
+                                }
+                                ss.push(item);
+                            } else if (item['user_oj_id'] && item['user_oj_id'].indexOf(v) > -1) {
+                                if (self.searchlist.indexOf(item.user_oj_id) == -1) {
+                                    self.searchlist.push(item.user_oj_id);
+                                }
+                                ss.push(item);
+                            } else if (item['user_name'].indexOf(v) > -1) {
+                                if (self.searchlist.indexOf(item.user_name) == -1) {
+                                    self.searchlist.push(item.user_name);
+                                }
+                                ss.push(item);
+                            } else if (item['user_id'].indexOf(v) > -1) {
+                                if (self.searchlist.indexOf(item.user_id) == -1) {
+                                    self.searchlist.push(item.user_id);
+                                }
+                                ss.push(item);
+                            }
+                        });
+                        this.setSlist(ss); // 将过滤后的数据给了slist
+                    } else {
+                        // 没有搜索内容，则展示全部数据
+                        this.setSlist(this.list);
+                    }
+                },
+
+            },
+            watch: {}
+        });
+    }
     let user_sub_info_table = new Vue({
         el: '#user_sub_info_table',
         data: {
@@ -897,4 +1083,9 @@ $(document).ready(function () {
         },
         watch: {}
     })
+    userinfo_guide_menu.infos.push({name: '能力提升轨迹', tag_id: 'rank_list_charts'});
+    userinfo_guide_menu.infos.push({name: '七日做题曲线', tag_id: 'weeklyInfoCount'});
+    userinfo_guide_menu.infos.push({name: '题目详情列表', tag_id: 'user_sub_info_table'});
+    $('.ui.sticky')
+        .sticky();
 });

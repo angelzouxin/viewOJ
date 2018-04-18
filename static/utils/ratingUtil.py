@@ -83,7 +83,7 @@ def calculateUsersRating():
 
 
 def calculateUserRating(user_id, rating):
-    sub_infos = subInfoUtil.query(user_id, start_date=date.today())
+    sub_infos = subInfoUtil.query(user_id)
     res = 0
     for sub_info in sub_infos:
         oj_id = sub_info.get('ojId')

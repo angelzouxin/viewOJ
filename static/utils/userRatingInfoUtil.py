@@ -1,14 +1,16 @@
 from static.models.UserRatingInfo import UserRatingInfo
+from static.models.User import User
 from datetime import date
 from viewOJ import db
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 
-dict_name = ['userId', 'rating', 'countDate']
+rank_list_dict_name = ['userName', 'userId', 'rating']
+rank_dict_name = ['userName', 'userId', 'rating', 'countDate']
 DEFAULT_RATING = 1500
 
 
 def query(user_id, count_date):
-    db_query = db.session.query(UserRatingInfo).\
+    db_query = db.session.query(UserRatingInfo). \
         filter(UserRatingInfo.userId == user_id)
     if count_date:
         db_query = db_query.filter(UserRatingInfo.countDate == count_date)
@@ -17,7 +19,7 @@ def query(user_id, count_date):
 
 
 def queryByIds(user_ids, count_date):
-    db_query = db.session.query(UserRatingInfo).\
+    db_query = db.session.query(UserRatingInfo). \
         filter(and_(UserRatingInfo.count_date == count_date, UserRatingInfo.userId.in_(user_ids)))
     result = db_query.all()
     return [item.to_dict() for item in result]
@@ -33,7 +35,7 @@ def add(user_id, rating, count_date=None):
 
 
 def queryOne(user_id, count_date):
-    db_query = db.session.query(UserRatingInfo).\
+    db_query = db.session.query(UserRatingInfo). \
         filter(UserRatingInfo.userId == user_id)
     if count_date:
         db_query = db_query.filter(UserRatingInfo.countDate == count_date)
@@ -47,3 +49,23 @@ def upsert(user_id, rating, count_date=date.today()):
         return True
     user_rating_info.rating = rating
     db.session.commit()
+
+
+def getRankList():
+    t = db.session.query(
+        UserRatingInfo.userId,
+        func.max(UserRatingInfo.countDate).label('maxDate')
+    ).group_by(UserRatingInfo.userId).subquery('t')
+    db_query = db.session.query(User.userName, User.userId, UserRatingInfo.rating). \
+        join(t, and_(UserRatingInfo.userId == User.userId,
+                     and_(t.c.userId == UserRatingInfo.userId, t.c.maxDate == UserRatingInfo.countDate))).group_by(
+        User.userId).order_by(UserRatingInfo.rating.desc())
+    return [dict(zip(rank_list_dict_name, item)) for item in db_query.all()]
+
+
+def getRankById(user_id):
+    db_query = db.session.query(User.userName, User.userId, UserRatingInfo.rating, UserRatingInfo.countDate). \
+        join(UserRatingInfo, User.userId == UserRatingInfo.userId). \
+        filter(User.userId == user_id). \
+        order_by(UserRatingInfo.countDate.asc())
+    return [dict(zip(rank_dict_name, item)) for item in db_query.all()]

@@ -38,49 +38,6 @@
         {% endif %}
         <a class="active item">RankList</a>
     </div>
-    <div class="ui dimmer modals page transition hidden" _vimium-has-onclick-listener="">
-        <div class="ui small add user modal transition hidden" _vimium-has-onclick-listener=""
-             style="margin-top: -92.5px;">
-            <div class="header">添加用户</div>
-            <div class="content">
-                <form action="/user/add" method="post" class="ui form segment error" _vimium-has-onclick-listener="">
-                    <div class="required field">
-                        <label>UserId</label>
-                        <div class="ui icon input">
-                            <input type="text" name="userId" placeholder="UserId">
-                            <i class="user icon"></i>
-                        </div>
-                    </div>
-                    <div class="required field">
-                        <label>Username</label>
-                        <div class="ui icon input">
-                            <input type="text" name="userName" placeholder="Username">
-                            <i class="user icon"></i>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Permission</label>
-                        <div class="ui selection dropdown">
-                            <input type="hidden" name="permission">
-                            <div class="default text">Permission</div>
-                            <i class="dropdown icon"></i>
-                            <div class="menu">
-                                <div class="item" data-value="student">student</div>
-                                <div class="item" data-value="admin">admin</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ui user submit button" style="display: none">Submit</div>
-                </form>
-            </div>
-
-            <div class="actions">
-                <div class="ui clear form negative button">否</div>
-                <div class="ui positive right labeled icon check form button">Submit <i
-                        class="checkmark icon"></i></div>
-            </div>
-        </div>
-    </div>
     <div class="pusher">
         <div class="ui inverted vertical masthead center aligned segment">
             <div class="ui container">
@@ -122,9 +79,36 @@
                 </div>
             </div>
             <div class="ui container">
-                <div class="ui container">
-                    页面准备中
+                <div class="container" id="rank_list_table">
+                    {% raw %}
+                    <div class="ui left aligned container">
+                        <div class="ui search">
+                            <div class="ui icon input">
+                                <input class="prompt" type="text" @input="search" list="search_result"
+                                       placeholder="Search users...">
+                                <i class="search icon"></i>
+                            </div>
+                            <datalist id="search_result">
+                                <option v-cloak v-for="item in searchlist" :value="item"></option>
+                            </datalist>
+                        </div>
+                    </div>
+                    <div>
+                        <user-ranklist-table
+                                :slist="slist"
+                                :page_size="page_size"
+                                :page_index="page_index">
+                        </user-ranklist-table>
+                    </div>
+                    {% endraw %}
                 </div>
+                <script>
+                    let rank_list = {{ items|tojson|safe }};
+                    for (let [index, rank] of rank_list.entries()) {
+                        rank.item_index = index;
+                        rank.rank_id = index + 1;
+                    }
+                </script>
             </div>
         </div>
     </div>

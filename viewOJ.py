@@ -200,7 +200,17 @@ def search_sub_info():
 
 @app.route('/rank_list', methods=['GET', 'POST'])
 def rank_list():
-    return render_template('ranklist.html', title='RankList')
+    from static.utils import userRatingInfoUtil
+    rows = userRatingInfoUtil.getRankList()
+    items = rows
+    return render_template('ranklist.html', title='RankList', items=items)
+
+
+@app.route('/rank_list/<user_id>', methods=['GET'])
+def get_user_rank_list(user_id):
+    from static.utils import userRatingInfoUtil
+    rows = userRatingInfoUtil.getRankById(user_id)
+    return toolsUtil.obj_to_json({'status': 'ok', 'result': {'rank_info': rows}})
 
 
 if __name__ == '__main__':

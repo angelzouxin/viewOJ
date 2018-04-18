@@ -13,7 +13,7 @@ class UserRatingInfo(db.Model):
 
     def __init__(self, user_id, rating=1500):
         self.userId = user_id
-        self.proId = rating
+        self.rating = rating
 
     def __repr__(self):
         return str({'userId': self.userId, 'rating': self.rating, 'countDate': self.countDate})
