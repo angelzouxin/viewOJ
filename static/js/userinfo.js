@@ -249,8 +249,8 @@ $(document).ready(function () {
         2699: 'Candidate Master',
         2999: 'Master',
         3399: 'GrandMaster',
-        3899: 'Legendary GrandMaster',
-        9999: 'International GrandMaster',
+        3899: 'International GrandMaster',
+        9999: 'Legendary GrandMaster',
     };
     const RATING_NUMBER = [1699, 2099, 2399, 2699, 2999, 3399, 3899, 9999];
 
@@ -771,6 +771,7 @@ $(document).ready(function () {
                 rank_info[i]['x'] = +moment(rank_info[i]['countDate']);
                 rank_info[i]['y'] = parseFloat(rank_info[i]['rating']);
                 rank_info[i]['change'] = rank_info[i]['rating'] - (i > 0 ? rank_info[i - 1]['rating'] : 1500)
+                rank_info[i]['rating'] = (rank_info[i]['rating'] >= 0 ? '+' : '') + rank_info[i]['rating']
             }
             rankListChartOption.series[0].data = rank_info;
             rankInfoCharts = new Highcharts.Chart(rankListChartOption);
