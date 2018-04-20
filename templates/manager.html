@@ -19,23 +19,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="ui vertical inverted sidebar menu left" style="">
-        <form id='home' action="{{ url_for('home') }}" method="GET">
-        </form>
-        <a href="javascript:{}" onclick="document.getElementById('home').submit();"
-           class="item">Home</a>
-        <a class="active item">Manager</a>
-        {% if current_user.userId %}
-            <form id='userInfo' action="{{ 'userInfo/' + current_user.userId }}" method="GET">
-            </form>
-            <a href="javascript:{}" onclick="document.getElementById('userInfo').submit();"
-               class="item">UserInfo</a>
-        {% endif %}
-        <form id='rankList' action="{{ url_for('rank_list') }}" method="GET">
-        </form>
-        <a href="javascript:{}" onclick="document.getElementById('rankList').submit();"
-           class="item">RankList</a>
-    </div>
+    {{ create_sidebar_menu(title, current_user) }}
     <div class="ui dimmer modals page transition hidden" _vimium-has-onclick-listener="">
         <div class="ui small add user modal transition hidden" _vimium-has-onclick-listener=""
              style="margin-top: -92.5px;">
@@ -81,42 +65,7 @@
     </div>
     <div class="pusher">
         <div class="ui inverted vertical masthead center aligned segment">
-            <div class="ui container">
-                <div class="ui large secondary inverted pointing menu">
-                    <a class="toc item">
-                        <i class="sidebar icon"></i>
-                    </a>
-                    <form id='home' action="{{ url_for('home') }}" method="GET">
-                    </form>
-                    <a href="javascript:{}" onclick="document.getElementById('home').submit();"
-                       class="item">Home</a>
-                    <a class="active item">Manager</a>
-                    {% if current_user.userId %}
-                        <form id='userInfo' action="{{ 'userInfo/' + current_user.userId }}" method="GET">
-                        </form>
-                        <a href="javascript:{}" onclick="document.getElementById('userInfo').submit();"
-                           class="item">UserInfo</a>
-                    {% endif %}
-                    <form id='rankList' action="{{ url_for('rank_list') }}" method="GET">
-                    </form>
-                    <a href="javascript:{}" onclick="document.getElementById('rankList').submit();"
-                       class="item">RankList</a>
-                    <div class="right item">
-                        {% if current_user.is_anonymous %}
-                            <form id='login' action="{{ url_for('login') }}" method="POST">
-                                <a href="javascript:{}" onclick="document.getElementById('login').submit();"
-                                   class="ui inverted button">Log in</a>
-                            </form>
-                        {% else %}
-                            <a style="font-size: 20px">你好 {{ current_user.userName }}</a>
-                            <form id='logout' action="{{ url_for('logout') }}" method="GET">
-                                <a href="javascript:{}" onclick="document.getElementById('logout').submit();"
-                                   class="ui inverted button">Log Out</a>
-                            </form>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+            {{ create_large_menu(title, current_user) }}
             <div class="ui container">
                 <div class="container" id="user_list_table">
                     {% raw %}

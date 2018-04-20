@@ -1,3 +1,68 @@
+{% macro check_submit(title, id, title_name) %}
+    {% if title != title_name %}
+        onclick="document.getElementById('{{ id }}').submit();"
+    {% endif %}
+{%  endmacro %}
+
+{% macro create_menu(title, current_user) %}
+    {% if title != 'Home' %}
+            <form id='home' action="{{ url_for('home') }}" method="GET">
+            </form>
+    {% endif %}
+    <a href="javascript:{}" {{ check_submit(title, 'home', 'Home') }}
+       class="{% if title == 'Home' %} active {% endif %}item">Home</a>
+    {% if current_user.permission == 'admin' %}
+        {% if title != '后台管理' %}
+            <form id='manager' action="{{ url_for('manager') }}" method="GET">
+            </form>
+        {% endif %}
+        <a href="javascript:{}" {{ check_submit(title, 'manager', '后台管理') }}
+           class="{% if title == '后台管理' %} active {% endif %}item">Manager</a>
+    {% endif %}
+    {% if current_user.userId or title == '个人信息' %}
+        {% if title != '个人信息' %}
+            <form id='userInfo' action="{{ 'userInfo/' + current_user.userId }}" method="GET">
+            </form>
+        {% endif %}
+        <a href="javascript:{}" {{ check_submit(title, 'userInfo', '个人信息') }}
+           class="{% if title == '个人信息' %} active {% endif %}item">UserInfo</a>
+    {% endif %}
+    {% if title != 'RankList' %}
+        <form id='rankList' action="{{ url_for('rank_list') }}" method="GET">
+        </form>
+    {% endif %}
+    <a href="javascript:{}" {{ check_submit(title, 'rankList', 'RankList') }}
+       class="{% if title == 'RankList' %} active {% endif %}item">RankList</a>
+{% endmacro %}
+{% macro create_large_menu(title, current_user) %}
+<div class="ui container">
+    <div class="ui large secondary inverted pointing menu">
+        <a class="toc item">
+            <i class="sidebar icon"></i>
+        </a>
+        {{ create_menu(title, current_user) }}
+        <div class="right item">
+            {% if current_user.is_anonymous %}
+                <form id='login' action="{{ url_for('login') }}" method="POST">
+                    <a href="javascript:{}" onclick="document.getElementById('login').submit();"
+                       class="ui inverted button">Log in</a>
+                </form>
+            {% else %}
+                <a style="font-size: 20px">你好 {{ current_user.userName }}</a>
+                <form id='logout' action="{{ url_for('logout') }}" method="GET">
+                    <a href="javascript:{}" onclick="document.getElementById('logout').submit();"
+                       class="ui inverted button">Log Out</a>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+{% macro create_sidebar_menu(title, current_user) %}
+<div class="ui vertical inverted sidebar menu left" style="">
+    {{ create_menu(title, current_user) }}
+</div>
+{% endmacro %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -135,7 +200,6 @@
             .sidebar('attach events', '.toc.item');
     });
     $lodash = _.noConflict();
-    Object.defineProperty(Vue.prototype, '$lodash', {value: $lodash});
 </script>
 {% block content %}
 {% endblock %}
