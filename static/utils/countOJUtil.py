@@ -347,7 +347,7 @@ class Crawler:
                     jsonString = response.body
                 else:
                     # raise a exception
-                    raise BaseException
+                    raise Exception
             except:
                 self.wrongOJ[oj].append(name)
                 return
@@ -721,7 +721,7 @@ class Crawler:
                 return res
             res = self.getProInfoNoAuth(oj_name, pro_id)
             return res
-        except BaseException:
+        except Exception:
             print('爬取oj%s题目%s相关信息时出错' % (oj_name, pro_id))
             return [None, None]
 

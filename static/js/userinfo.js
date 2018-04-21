@@ -725,16 +725,20 @@ $(document).ready(function () {
             formatter: function () {
                 return '<b>Rating</b>：' + this.y + '(' + this.point.change + ')' + '<br/>'
                     + '<b>Rank Title</b>：' + getRankName(this.y) + '<br/>'
-                    + '<b>时间</b>：' + Highcharts.dateFormat('%Y-%m-%e', this.x) + '<br/>'
+                    + '<b>时间</b>：' + moment(this.x).format('YYYY-MM-DD') + '<br/>'
             }
         },
         plotOptions: {
             spline: {
                 marker: {
                     radius: 4,
-                    lineColor: '#666666',
+                    lineColor: '#66ccff',
                     lineWidth: 1
                 }
+            },
+            series: {
+                shadow: true,
+                lineColor: '#EFC245',
             }
         },
         credits: {
@@ -742,9 +746,9 @@ $(document).ready(function () {
         },
         series: [{
             name: '参赛轨迹',
-            marker: {symbol: 'square'},
+            marker: {lineWidth: 2,  fillColor: '#FFFFFF', lineColor: '#EFC445', enabled: true},
             showInLegend: false,
-            data: []
+            data: [],
         }],
         navigation: {
             menuItemStyle: {
@@ -761,18 +765,14 @@ $(document).ready(function () {
     $.get('/rank_list/' + user_id, null, function (response) {
         rankInfoCharts.hideLoading();
         if (response.status == 'ok') {
-            let rank_info = [{
-                'x': +moment('2018-04-17'),
-                'y': 1500,
-                'change': 0,
-                'rating': 1500
-            }].concat(response.result.rank_info);
-            for (var i = 1; i < rank_info.length; i++) {
+            let rank_info = response.result.rank_info;
+            for (var i = 0; i < rank_info.length; i++) {
                 rank_info[i]['x'] = +moment(rank_info[i]['countDate']);
                 rank_info[i]['y'] = parseFloat(rank_info[i]['rating']);
                 rank_info[i]['change'] = rank_info[i]['rating'] - (i > 0 ? rank_info[i - 1]['rating'] : 1500)
                 rank_info[i]['rating'] = (rank_info[i]['rating'] >= 0 ? '+' : '') + rank_info[i]['rating']
             }
+            console.log(rank_info)
             rankListChartOption.series[0].data = rank_info;
             rankInfoCharts = new Highcharts.Chart(rankListChartOption);
         } else {

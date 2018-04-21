@@ -18,6 +18,18 @@ def query(user_id, count_date):
     return [item.to_dict() for item in result]
 
 
+def queryLastRating(user_id, query_date):
+    last_count_date = db.session.query(
+        func.max(UserRatingInfo.countDate)
+    ).filter(and_(UserRatingInfo.userId == user_id, UserRatingInfo.countDate < query_date)).first()[0]
+    if last_count_date is None:
+        return None
+    db_query = db.session.query(UserRatingInfo). \
+        filter(and_(UserRatingInfo.userId == user_id, UserRatingInfo.countDate == last_count_date))
+    result = db_query.first()
+    return result.to_dict()
+
+
 def queryByIds(user_ids, count_date):
     db_query = db.session.query(UserRatingInfo). \
         filter(and_(UserRatingInfo.count_date == count_date, UserRatingInfo.userId.in_(user_ids)))
@@ -44,6 +56,7 @@ def queryOne(user_id, count_date):
 
 def upsert(user_id, rating, count_date=date.today()):
     user_rating_info = queryOne(user_id, count_date)
+    print(user_rating_info)
     if user_rating_info is None:
         add(user_id, rating, count_date)
         return True

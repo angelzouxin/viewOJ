@@ -102,7 +102,7 @@ class AcManager:
             crawler = Crawler(user[2])
             try:
                 crawler.run()
-            except BaseException:
+            except Exception:
                 print('have wrong!')
                 alarm.send_msg('crawel wrong!' + user[0] + ': ' + user[1])
             count = 0
@@ -206,7 +206,7 @@ class AcManager:
 
                 self.sqlUtil.insert_dailyInfo(dailyInfos)
                 self.sqlUtil.insert_subInfo(pros)
-            except BaseException:
+            except Exception:
                 print('have Error when insert to sqlite')
 
     # get Incremental
