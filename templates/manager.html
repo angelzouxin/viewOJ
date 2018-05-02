@@ -70,15 +70,27 @@
                 <div class="container" id="user_list_table">
                     {% raw %}
                     <div class="ui left aligned container">
-                        <div class="ui search">
-                            <div class="ui icon input">
-                                <input class="prompt" type="text" @input="search" list="search_result"
-                                       placeholder="Search users...">
-                                <i class="search icon"></i>
+                        <div class="ui grid">
+                            <div class="left six wide column">
+                                <div class="ui search">
+                                    <div class="ui icon input">
+                                        <input class="prompt" type="text" @input="search" list="search_result"
+                                               placeholder="Search users...">
+                                        <i class="search icon"></i>
+                                    </div>
+                                    <datalist id="search_result">
+                                        <option v-cloak v-for="item in searchlist" :value="item"></option>
+                                    </datalist>
+                                </div>
                             </div>
-                            <datalist id="search_result">
-                                <option v-cloak v-for="item in searchlist" :value="item"></option>
-                            </datalist>
+                            <div class="right floated six wide column">
+                            <div class="ui right aligned container">
+                                <div class="ui checkbox">
+                                    <input type="checkbox" id="filter_yn" v-model="filter_yn">
+                                    <label style="color: rgba(255,255,255,.9)!important">只显示记录用户</label>
+                                </div>
+                            </div>
+                            </div>
                         </div>
                     </div>
                     <div>

@@ -281,9 +281,11 @@ $(document).ready(function () {
             head_names: ['学号', '姓名', '是否记录', '权限', '账户下账号信息'],
             page_size: 10,
             page_index: 1,
+            filter_yn: true,
+            search_value: {target: {value: ''}},
         },
         created() {
-            this.setSlist(this.list);
+            this.search(this.search_value);
         },
         methods: {
             // 获取需要渲染到页面中的数据
@@ -294,11 +296,15 @@ $(document).ready(function () {
             search(e) {
                 let v = e.target.value,
                     self = this;
+                this.search_value = {target: {value: e.target.value}};
                 self.searchlist = [];
                 if (v) {
                     let ss = [];
                     // 过滤需要的数据
                     this.list.forEach(function (item, index) {
+                        if (self.filter_yn && item['yn'] != 1) {
+                            return
+                        }
                         if (item['permission'].indexOf(v) > -1) {
                             if (self.searchlist.indexOf(item.permission) == -1) {
                                 self.searchlist.push(item.permission);
@@ -319,12 +325,27 @@ $(document).ready(function () {
                     this.setSlist(ss); // 将过滤后的数据给了slist
                 } else {
                     // 没有搜索内容，则展示全部数据
-                    this.setSlist(this.list);
+                    if (!this.filter_yn) {
+                        this.setSlist(this.list);
+                        return
+                    }
+                    let ss = [];
+                    // 过滤需要的数据
+                    this.list.forEach(function (item, index) {
+                        if (item['yn'] == 1) {
+                            ss.push(item);
+                        }
+                    });
+                    this.setSlist(ss);
                 }
             },
 
         },
-        watch: {}
+        watch: {
+            filter_yn: function (val, oldVal) {
+                this.search(this.search_value)
+            }
+        }
     });
 
     $('.ui.add.user.button').click(function () {
