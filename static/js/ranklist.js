@@ -18,7 +18,7 @@ Vue.component('user-ranklist-table', {
                 <td>{{ item.rank_id }}</td>
                 <td>{{ item.userId }}</td>
                 <td>{{ item.userName }}</td>
-                <td>{{ item.rating }}</td>
+                <td>{{ item.rating }} <a style="font-size:13px;" :href="'/userInfo/' + item.userId + '#rank_list_charts'">详情</a></td>
             </tr>
             </tbody>
             <tfoot class="full-width">
