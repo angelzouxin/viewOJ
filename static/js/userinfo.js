@@ -274,7 +274,7 @@ $(document).ready(function () {
         normal: {
             label: {
                 formatter: function (params) {
-                    let oj_name = params.name.split(':WA')[0];
+                    let oj_name = params.name.split(':Total')[0];
                     let subTimes = 0;
                     let acTimes = 0;
                     if (daily_info[oj_name]) {
@@ -305,7 +305,7 @@ $(document).ready(function () {
             color: 'rgba(0,0,0,0)'
         }
     };
-    let radius = [40, 55];
+    let radius = [35, 50];
     let DATE_FORMAT = 'YYYY-MM-DD';
 
     function getRankName(rating) {
@@ -337,7 +337,52 @@ $(document).ready(function () {
         toolbox: {
             show: true,
             feature: {
-                dataView: {show: true, readOnly: false},
+                dataView: {
+                    show: true, readOnly: true,
+                    backgroundColor: 'rgba(27,28,29,.8)',
+                    textColor: 'rgba(255,255,255,.9)!important',
+                    title: '转换为表格',
+                    lang: ['训练数据统计表', '关闭'],
+                    optionToContent: function (opt) {
+                        let axisData = opt.series; //坐标数据
+                        let tdHeads = '<td  style="padding: 0 10px">OJ Name</td>'; //表头
+                        let tdBodys = ''; //数据
+                        ['ac数', '提交数', 'acRatio'].forEach(function (item) {
+                            //组装表头
+                            tdHeads += `<th>${item}</th>`;
+                        });
+                        let sum_accept = 0, sum_total = 0;
+                        let table = `<table class="ui selectable fixed inverted celled table"><tbody><tr>${tdHeads} </tr>`;
+                        for (let i = 0, l = axisData.length; i < l; i++) {
+                            let oj_name = axisData[i].data[1].name;
+                            let subTimes = 0;
+                            let acTimes = 0;
+                            if (daily_info[oj_name]) {
+                                subTimes = daily_info[oj_name][0].subTimes;
+                                acTimes = daily_info[oj_name][0].acTimes;
+                            }
+                            let acRatio = subTimes ? (acTimes / subTimes * 100).toFixed(2) : 0;
+                            sum_accept += acTimes;
+                            sum_total += subTimes;
+                            let arr = [acTimes, subTimes, acRatio];
+                            for (let j = 0; j < arr.length; j++) {
+                                //组装表数据
+                                tdBodys += `<td>${ arr[j]}</td>`;
+                            }
+                            table += `<tr><td>${oj_name}</td>${tdBodys}</tr>`;
+                            tdBodys = '';
+                        }
+                        let totalAcRatio = sum_total ? (sum_accept / sum_total * 100).toFixed(2) : 0;
+                        let arr = ['Total', sum_accept, sum_total, totalAcRatio];
+                        for (let j = 0; j < arr.length; j++) {
+                            //组装表数据
+                            tdBodys += `<td>${ arr[j]}</td>`;
+                        }
+                        table += `<tr>${tdBodys}</tr>`;
+                        table += '</tbody></table>';
+                        return table;
+                    }
+                },
                 magicType: {
                     show: true,
                     type: ['pie', 'funnel'],
@@ -514,7 +559,35 @@ $(document).ready(function () {
             show: true,
             feature: {
                 mark: {show: true},
-                dataView: {show: true, readOnly: true},
+                dataView: {show: true, readOnly: true,
+                    backgroundColor: 'rgba(27,28,29,.8)',
+                    textColor: 'rgba(255,255,255,.9)!important',
+                    title: '转换为表格',
+                    lang: ['训练数据统计表', '关闭'],
+                    optionToContent: function (opt) {
+                        let sum_total = 0;
+                        let axisData = opt.series[0].data; //坐标数据
+                        let tdHeads = '<td  style="padding: 0 10px">OJ Name</td>'; //表头
+                        let tdBodys = ''; //数据
+                        ['提交数'].forEach(function (item) {
+                            //组装表头
+                            tdHeads += `<th>${item}</th>`;
+                        });
+                        let table = `<table class="ui selectable fixed inverted celled table"><tbody><tr>${tdHeads} </tr>`;
+                        for (let i = 0, l = axisData.length; i < l; i++) {
+                            sum_total += axisData[i].value
+                            let series = [axisData[i].name, axisData[i].value];
+                            for (let j = 0; j < series.length; j++) {
+                                //组装表数据
+                                tdBodys += `<td>${ series[j]}</td>`;
+                            }
+                            table += `<tr>${tdBodys}</tr>`;
+                            tdBodys = '';
+                        }
+                        table += `<tr><td>Total</td><td>${sum_total}</td></tr>`
+                        table += '</tbody></table>';
+                        return table;
+                    }},
                 restore: {show: true},
                 saveAsImage: {show: true}
             }
@@ -548,7 +621,12 @@ $(document).ready(function () {
             feature: {
                 mark: {show: true},
                 dataView: {
-                    show: true, readOnly: true, optionToContent: function (opt) {
+                    show: true, readOnly: true,
+                    backgroundColor: 'rgba(27,28,29,.8)',
+                    textColor: 'rgba(255,255,255,.9)!important',
+                    title: '转换为表格',
+                    lang: ['训练数据统计表', '关闭'],
+                    optionToContent: function (opt) {
                         let axisData = opt.xAxis[0].data; //坐标数据
                         let series = opt.series; //折线图数据
                         let tdHeads = '<td  style="padding: 0 10px">时间</td>'; //表头
@@ -557,7 +635,7 @@ $(document).ready(function () {
                             //组装表头
                             tdHeads += `<th>${item.name}</th>`;
                         });
-                        let table = `<table class="ui selectable fixed compact celled table"><tbody><tr>${tdHeads} </tr>`;
+                        let table = `<table class="ui selectable fixed inverted celled table"><tbody><tr>${tdHeads} </tr>`;
                         for (let i = 0, l = axisData.length; i < l; i++) {
                             for (let j = 0; j < series.length; j++) {
                                 //组装表数据
@@ -746,7 +824,7 @@ $(document).ready(function () {
         },
         series: [{
             name: '参赛轨迹',
-            marker: {lineWidth: 2,  fillColor: '#FFFFFF', lineColor: '#EFC445', enabled: true},
+            marker: {lineWidth: 2, fillColor: '#FFFFFF', lineColor: '#EFC445', enabled: true},
             showInLegend: false,
             data: [],
         }],
@@ -772,7 +850,6 @@ $(document).ready(function () {
                 rank_info[i]['change'] = rank_info[i]['rating'] - (i > 0 ? rank_info[i - 1]['rating'] : 1500)
                 rank_info[i]['rating'] = (rank_info[i]['rating'] >= 0 ? '+' : '') + rank_info[i]['rating']
             }
-            console.log(rank_info)
             rankListChartOption.series[0].data = rank_info;
             rankInfoCharts = new Highcharts.Chart(rankListChartOption);
         } else {
@@ -797,7 +874,7 @@ $(document).ready(function () {
                 subTimes = Math.max(p[oj_name][0].subTimes, 1);
                 acTimes = p[oj_name][0].acTimes;
             }
-            o.data[0].name = oj_name + ':WA';
+            o.data[0].name = oj_name + ':Total';
             o.data[0].value = subTimes - acTimes;
             o.data[1].value = acTimes
         })
