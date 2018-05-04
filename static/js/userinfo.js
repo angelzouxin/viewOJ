@@ -318,7 +318,7 @@ $(document).ready(function () {
         return 'International GrandMaster';
     }
 
-    const user_id = window.location.href.split('/').pop().split('?')[0];
+    const user_id = (new URL(window.location.href)).pathname.split('/userInfo/')[1];
     const dailyInfoAcRatioOption = {
         backgroundColor: '#1b1c1d',
         legend: {
